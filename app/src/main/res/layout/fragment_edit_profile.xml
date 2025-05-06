@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <!-- Profil Resmi -->
+        <ImageView
+            android:id="@+id/imageViewProfileEdit"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/ic_defaultprofile"
+            android:scaleType="centerCrop"
+            android:background="@drawable/circle_background"
+            android:contentDescription="Profil Resmi"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <!-- Resim Seçme Butonu -->
+        <Button
+            android:id="@+id/buttonChangeImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profil Resmini Seç"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Kullanıcı Adı -->
+        <EditText
+            android:id="@+id/editTextUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Kullanıcı Adı" />
+
+        <!-- Favori Oyun -->
+        <EditText
+            android:id="@+id/editTextFavoriteGame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Favori Oyun" />
+
+        <!-- Konum -->
+        <EditText
+            android:id="@+id/editTextLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Konum"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Kaydet Butonu -->
+        <Button
+            android:id="@+id/buttonSaveProfile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kaydet" />
+
+    </LinearLayout>
+</ScrollView>

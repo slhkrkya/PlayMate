@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "35291785786",
+    "firebase_url": "https://playmate-96ba6-default-rtdb.firebaseio.com",
+    "project_id": "playmate-96ba6",
+    "storage_bucket": "playmate-96ba6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:35291785786:android:98e0641988064b02bee303",
+        "android_client_info": {
+          "package_name": "com.example.playmate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "35291785786-ir9oddss8c36idnon5kcvjq9l9g8a186.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.playmate",
+            "certificate_hash": "ae41f8f4ed4614a5f1b4835db718b21201a4c74a"
+          }
+        },
+        {
+          "client_id": "35291785786-qlt5p32gvhj41npgakgn8j4ubg5sk4d1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlZi6BcrHZi62wh-5XNWB3A6DZMdHufq8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "35291785786-qlt5p32gvhj41npgakgn8j4ubg5sk4d1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
