@@ -39,11 +39,15 @@
             android:hint="Kullanıcı Adı" />
 
         <!-- Favori Oyun -->
-        <EditText
-            android:id="@+id/editTextFavoriteGame"
+        <Spinner
+            android:id="@+id/spinnerFavoriteGames"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Favori Oyun" />
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:background="@android:drawable/btn_dropdown"
+            android:backgroundTint="@color/lapis_lazuli"
+            android:spinnerMode="dialog" />
 
         <!-- Konum -->
         <EditText

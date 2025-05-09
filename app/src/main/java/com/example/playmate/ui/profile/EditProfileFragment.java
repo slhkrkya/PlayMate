@@ -8,7 +8,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -22,10 +26,24 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class EditProfileFragment extends Fragment {
 
     private FragmentEditProfileBinding binding;
     private Uri selectedImageUri;
+    private List<String> selectedGames = new ArrayList<>();
+    private static final String[] GAMES = {
+            "League of Legends",
+            "Valorant",
+            "Counter Strike",
+            "Minecraft",
+            "REPO",
+            "Delta Force",
+            "Call of Duty"
+    };
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -43,6 +61,31 @@ public class EditProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentEditProfileBinding.inflate(inflater, container, false);
 
+        // Initialize Spinner for games
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                GAMES
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerFavoriteGames.setAdapter(adapter);
+
+        // Handle game selection
+        binding.spinnerFavoriteGames.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedGame = GAMES[position];
+                if (!selectedGames.contains(selectedGame)) {
+                    selectedGames.add(selectedGame);
+                    updateSpinnerTitle();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
         // Profil Resmi Seçme
         binding.buttonChangeImage.setOnClickListener(v -> openImagePicker());
 
@@ -50,6 +93,14 @@ public class EditProfileFragment extends Fragment {
         binding.buttonSaveProfile.setOnClickListener(v -> saveProfile());
 
         return binding.getRoot();
+    }
+
+    private void updateSpinnerTitle() {
+        if (selectedGames.isEmpty()) {
+            binding.spinnerFavoriteGames.setPrompt("Favori Oyunlar Seçin");
+        } else {
+            binding.spinnerFavoriteGames.setPrompt(selectedGames.size() + " oyun seçildi");
+        }
     }
 
     private void openImagePicker() {
@@ -73,21 +124,22 @@ public class EditProfileFragment extends Fragment {
             SharedPreferences prefs = requireActivity().getSharedPreferences("profile_prefs", 0);
             String imageUri = prefs.getString("profile_image_uri", currentUser.getProfileImageUrl());
 
-            // EditText’lerden veri al (boş değilse güncelle)
+            // EditText'lerden veri al (boş değilse güncelle)
             String newUsername = binding.editTextUsername.getText().toString().trim();
-            String newFavoriteGame = binding.editTextFavoriteGame.getText().toString().trim();
             String newLocation = binding.editTextLocation.getText().toString().trim();
 
             String finalUsername = newUsername.isEmpty() ? currentUser.getUsername() : newUsername;
-            String finalFavoriteGame = newFavoriteGame.isEmpty() ? currentUser.getFavoriteGame() : newFavoriteGame;
             String finalLocation = newLocation.isEmpty() ? currentUser.getLocation() : newLocation;
+
+            // Seçili oyunları virgülle ayırarak birleştir
+            String selectedGamesString = String.join(",", selectedGames);
 
             // Yeni kullanıcı nesnesi
             User updatedUser = new User(
                     currentUser.getUid(),
                     finalUsername,
                     currentUser.getEmail(),
-                    finalFavoriteGame,
+                    selectedGamesString,
                     finalLocation,
                     imageUri
             );
