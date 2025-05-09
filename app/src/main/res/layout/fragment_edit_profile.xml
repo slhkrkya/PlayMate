@@ -58,11 +58,15 @@
             android:layout_marginBottom="16dp" />
 
         <!-- Konum -->
-        <EditText
-            android:id="@+id/editTextLocation"
+        <Spinner
+            android:id="@+id/spinnerLocation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Konum"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            android:background="@android:drawable/btn_dropdown"
+            android:backgroundTint="@color/lapis_lazuli"
+            android:spinnerMode="dialog"
             android:layout_marginBottom="16dp" />
 
         <!-- Kaydet Butonu -->

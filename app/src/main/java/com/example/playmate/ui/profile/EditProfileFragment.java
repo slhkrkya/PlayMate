@@ -39,6 +39,7 @@ public class EditProfileFragment extends Fragment {
     private FragmentEditProfileBinding binding;
     private Uri selectedImageUri;
     private List<String> selectedGames = new ArrayList<>();
+    private String selectedLocation = "";
     private static final String[] GAMES = {
             "League of Legends",
             "Valorant",
@@ -47,6 +48,12 @@ public class EditProfileFragment extends Fragment {
             "REPO",
             "Delta Force",
             "Call of Duty"
+    };
+
+    private static final String[] LOCATIONS = {
+            "Türkiye",
+            "EU",
+            "NA"
     };
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher =
@@ -66,13 +73,22 @@ public class EditProfileFragment extends Fragment {
         binding = FragmentEditProfileBinding.inflate(inflater, container, false);
 
         // Initialize Spinner for games
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+        ArrayAdapter<String> gamesAdapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_spinner_item,
                 GAMES
         );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.spinnerFavoriteGames.setAdapter(adapter);
+        gamesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerFavoriteGames.setAdapter(gamesAdapter);
+
+        // Initialize Spinner for locations
+        ArrayAdapter<String> locationsAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                LOCATIONS
+        );
+        locationsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerLocation.setAdapter(locationsAdapter);
 
         // Handle game selection
         binding.spinnerFavoriteGames.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -91,37 +107,60 @@ public class EditProfileFragment extends Fragment {
             }
         });
 
+        // Handle location selection
+        binding.spinnerLocation.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedLocation = LOCATIONS[position];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
         // Profil Resmi Seçme
         binding.buttonChangeImage.setOnClickListener(v -> openImagePicker());
 
         // Profil Kaydetme
         binding.buttonSaveProfile.setOnClickListener(v -> saveProfile());
 
-        // Load existing games if any
-        loadExistingGames();
+        // Load existing data
+        loadExistingData();
 
         return binding.getRoot();
     }
 
-    private void loadExistingGames() {
+    private void loadExistingData() {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(uid);
         
         userRef.get().addOnSuccessListener(snapshot -> {
             User currentUser = snapshot.getValue(User.class);
-            if (currentUser != null && currentUser.getFavoriteGame() != null) {
-                String[] existingGames = currentUser.getFavoriteGame().split(",");
-                for (String game : existingGames) {
-                    if (!game.trim().isEmpty()) {
-                        selectedGames.add(game.trim());
-                        addGameChip(game.trim());
+            if (currentUser != null) {
+                // Load games
+                if (currentUser.getFavoriteGame() != null) {
+                    String[] existingGames = currentUser.getFavoriteGame().split(",");
+                    for (String game : existingGames) {
+                        if (!game.trim().isEmpty()) {
+                            selectedGames.add(game.trim());
+                            addGameChip(game.trim());
+                        }
+                    }
+                    updateSpinnerTitle();
+                }
+
+                // Load location
+                if (currentUser.getLocation() != null) {
+                    selectedLocation = currentUser.getLocation();
+                    int locationIndex = Arrays.asList(LOCATIONS).indexOf(selectedLocation);
+                    if (locationIndex != -1) {
+                        binding.spinnerLocation.setSelection(locationIndex);
                     }
                 }
-                updateSpinnerTitle();
             }
         });
     }
-
 
     private void addGameChip(String game) {
         Chip chip = new Chip(requireContext());
@@ -187,10 +226,7 @@ public class EditProfileFragment extends Fragment {
 
             // EditText'lerden veri al (boş değilse güncelle)
             String newUsername = binding.editTextUsername.getText().toString().trim();
-            String newLocation = binding.editTextLocation.getText().toString().trim();
-
             String finalUsername = newUsername.isEmpty() ? currentUser.getUsername() : newUsername;
-            String finalLocation = newLocation.isEmpty() ? currentUser.getLocation() : newLocation;
 
             // Seçili oyunları virgülle ayırarak birleştir
             String selectedGamesString = String.join(",", selectedGames);
@@ -201,7 +237,7 @@ public class EditProfileFragment extends Fragment {
                     finalUsername,
                     currentUser.getEmail(),
                     selectedGamesString,
-                    finalLocation,
+                    selectedLocation,
                     imageUri
             );
 
