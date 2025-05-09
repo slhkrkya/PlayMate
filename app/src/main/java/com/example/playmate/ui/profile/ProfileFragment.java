@@ -29,50 +29,80 @@ public class ProfileFragment extends Fragment {
     private FragmentProfileBinding binding;
     private DatabaseReference userRef;
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    @Nullable @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+
+        // 1) Binding ve Firebase referansını hazırla
         binding = FragmentProfileBinding.inflate(inflater, container, false);
+        String uid = FirebaseAuth.getInstance()
+                .getCurrentUser()
+                .getUid();
+        userRef = FirebaseDatabase
+                .getInstance()
+                .getReference("users")
+                .child(uid);
 
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        userRef = FirebaseDatabase.getInstance().getReference("users").child(uid);
-
-        // SharedPreferences'ten URI'yi al ve yükle
-        SharedPreferences prefs = requireActivity().getSharedPreferences("profile_prefs", 0);
+        // 2) Eğer SharedPreferences'da seçilmiş profil resmi URI'si varsa göster
+        SharedPreferences prefs = requireActivity()
+                .getSharedPreferences("profile_prefs", 0);
         String savedUri = prefs.getString("profile_image_uri", null);
         if (savedUri != null) {
-            Uri imageUri = Uri.parse(savedUri);
-            Glide.with(requireContext())
-                    .load(imageUri)
+            Glide.with(this)
+                    .load(Uri.parse(savedUri))
                     .placeholder(R.drawable.ic_defaultprofile)
+                    .circleCrop()
                     .into(binding.imageViewProfile);
         } else {
-            binding.imageViewProfile.setImageResource(R.drawable.ic_defaultprofile);
+            binding.imageViewProfile
+                    .setImageResource(R.drawable.ic_defaultprofile);
         }
 
-        // Kullanıcı verilerini çek ve göster
+        // 3) Veriyi çek ve TextView'ları doldur
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user = snapshot.getValue(User.class);
-                if (user != null) {
-                    binding.textUsername.setText(user.getUsername());
-                    binding.textFavoriteGame.setText(user.getFavoriteGame());
-                    binding.textEmail.setText(user.getEmail());
-                    binding.textLocation.setText(user.getLocation());
+            public void onDataChange(@NonNull DataSnapshot snap) {
+                User user = snap.getValue(User.class);
+                if (user == null) return;
+
+                // Kullanıcı Adı
+                binding.textUsername
+                        .setText("Kullanıcı Adı: " + user.getUsername());
+
+                // Email
+                binding.textEmail
+                        .setText("Email: " + user.getEmail());
+
+                // Konum
+                binding.textLocation
+                        .setText("Konum: " + user.getLocation());
+
+                // Favori Oyun → CSV’den ilk öğeyi ayıkla
+                String favs = user.getFavoriteGame();
+                String firstGame = "";
+                if (favs != null && !favs.isEmpty()) {
+                    firstGame = favs.split(",")[0].trim();
                 }
+                binding.textFavoriteGame
+                        .setText("Favori Oyun: " + firstGame);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Kullanıcı verileri alınamadı.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(),
+                                "Veri yüklenirken hata: " + error.getMessage(),
+                                Toast.LENGTH_SHORT)
+                        .show();
             }
         });
 
-        // Profili Düzenle butonu
-        binding.buttonEditProfile.setOnClickListener(v ->
-                Navigation.findNavController(v).navigate(R.id.action_nav_profile_to_editProfileFragment)
-        );
+        // 4) Profili düzenle ekranına geçiş
+        binding.buttonEditProfile
+                .setOnClickListener(v ->
+                        Navigation.findNavController(v)
+                                .navigate(R.id.action_nav_profile_to_editProfileFragment)
+                );
 
         return binding.getRoot();
     }

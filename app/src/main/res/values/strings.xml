@@ -4,4 +4,5 @@
     <string name="navigation_drawer_open">Menüyü Aç</string>
     <string name="navigation_drawer_close">Menüyü Kapat</string>
     <string name="game_icon_desc">Oyun ikonu</string>
+    <string name="profile_image_desc">Profile Resmi</string>
 </resources>
