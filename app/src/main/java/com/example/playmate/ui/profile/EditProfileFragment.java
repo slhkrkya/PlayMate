@@ -22,9 +22,13 @@ import androidx.navigation.Navigation;
 import com.example.playmate.R;
 import com.example.playmate.data.model.User;
 import com.example.playmate.databinding.FragmentEditProfileBinding;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import androidx.core.content.ContextCompat;
+import android.content.res.ColorStateList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,6 +81,7 @@ public class EditProfileFragment extends Fragment {
                 String selectedGame = GAMES[position];
                 if (!selectedGames.contains(selectedGame)) {
                     selectedGames.add(selectedGame);
+                    addGameChip(selectedGame);
                     updateSpinnerTitle();
                 }
             }
@@ -92,7 +97,63 @@ public class EditProfileFragment extends Fragment {
         // Profil Kaydetme
         binding.buttonSaveProfile.setOnClickListener(v -> saveProfile());
 
+        // Load existing games if any
+        loadExistingGames();
+
         return binding.getRoot();
+    }
+
+    private void loadExistingGames() {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(uid);
+        
+        userRef.get().addOnSuccessListener(snapshot -> {
+            User currentUser = snapshot.getValue(User.class);
+            if (currentUser != null && currentUser.getFavoriteGame() != null) {
+                String[] existingGames = currentUser.getFavoriteGame().split(",");
+                for (String game : existingGames) {
+                    if (!game.trim().isEmpty()) {
+                        selectedGames.add(game.trim());
+                        addGameChip(game.trim());
+                    }
+                }
+                updateSpinnerTitle();
+            }
+        });
+    }
+
+
+    private void addGameChip(String game) {
+        Chip chip = new Chip(requireContext());
+        chip.setText(game);
+        chip.setCloseIconVisible(true);
+        
+        // Make close icon more visible
+        chip.setCloseIconSize(getResources().getDimension(R.dimen.chip_close_icon_size));
+        chip.setCloseIconTint(ContextCompat.getColorStateList(requireContext(), android.R.color.white));
+        
+        // Chip background
+        chip.setChipBackgroundColorResource(R.color.lapis_lazuli);
+        
+        // Text color
+        chip.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
+        
+        // Add padding to make chip more spacious
+        chip.setChipMinHeight(getResources().getDimension(R.dimen.chip_min_height));
+        chip.setPadding(
+            getResources().getDimensionPixelSize(R.dimen.chip_padding_horizontal),
+            getResources().getDimensionPixelSize(R.dimen.chip_padding_vertical),
+            getResources().getDimensionPixelSize(R.dimen.chip_padding_horizontal),
+            getResources().getDimensionPixelSize(R.dimen.chip_padding_vertical)
+        );
+
+        chip.setOnCloseIconClickListener(v -> {
+            selectedGames.remove(game);
+            binding.chipGroupSelectedGames.removeView(chip);
+            updateSpinnerTitle();
+        });
+
+        binding.chipGroupSelectedGames.addView(chip);
     }
 
     private void updateSpinnerTitle() {
