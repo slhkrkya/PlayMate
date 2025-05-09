@@ -5,6 +5,19 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <TextView
+        android:id="@+id/textViewAppName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="PlayMate"
+        android:textSize="42sp"
+        android:textStyle="bold"
+        android:textColor="@color/lapis_lazuli"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="42dp"/>
     <EditText
         android:id="@+id/editTextEmail"
         android:hint="Email"
@@ -60,7 +73,7 @@
         android:focusable="true" />
     <TextView
         android:id="@+id/textViewGoToGoogle"
-        android:text="Google hesabı ile kayıt ol"
+        android:text="Google hesabı ile giriş yap"
         android:textColor="@color/lapis_lazuli"
         android:textStyle="bold"
         android:layout_width="wrap_content"

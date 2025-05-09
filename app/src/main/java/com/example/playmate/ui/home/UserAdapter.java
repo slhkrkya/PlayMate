@@ -3,8 +3,10 @@ package com.example.playmate.ui.home;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,25 +29,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         this.listener = listener;
     }
 
-    public static class UserViewHolder extends RecyclerView.ViewHolder {
-        TextView usernameText, favoriteGameText, locationText;
-
-        public UserViewHolder(@NonNull View itemView) {
-            super(itemView);
-            usernameText = itemView.findViewById(R.id.textViewUsername);
-            favoriteGameText = itemView.findViewById(R.id.textViewGame);
-            locationText = itemView.findViewById(R.id.textViewLocation);
-        }
-
-        public void bind(User user, OnUserClickListener listener) {
-            usernameText.setText(user.getUsername());
-            favoriteGameText.setText("Favori Oyun: " + user.getFavoriteGame());
-            locationText.setText("Konum: " + user.getLocation());
-
-            itemView.setOnClickListener(v -> listener.onUserClick(user));
-        }
-    }
-
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -62,5 +45,61 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @Override
     public int getItemCount() {
         return userList.size();
+    }
+
+    public static class UserViewHolder extends RecyclerView.ViewHolder {
+        private final TextView usernameText;
+        private final TextView locationText;
+        private final ImageView gameIcon;
+
+        public UserViewHolder(@NonNull View itemView) {
+            super(itemView);
+            usernameText = itemView.findViewById(R.id.textViewUsername);
+            locationText = itemView.findViewById(R.id.textViewLocation);
+            gameIcon     = itemView.findViewById(R.id.imageViewGameIcon);
+        }
+
+        public void bind(User user, OnUserClickListener listener) {
+            // Username & Location
+            usernameText.setText(user.getUsername());
+            locationText.setText(user.getLocation());
+
+            // Split CSV and get first game
+            String favs = user.getFavoriteGame(); // e.g. "REPO,Counter Strike,…"
+            String firstGame = "";
+            if (favs != null && !favs.isEmpty()) {
+                String[] parts = favs.split(",");
+                firstGame = parts[0].trim();
+            }
+
+            // Find and set drawable resource
+            int iconRes = getIconResFor(firstGame);
+            gameIcon.setImageResource(iconRes);
+
+            // Handle click
+            itemView.setOnClickListener(v -> listener.onUserClick(user));
+        }
+
+        @DrawableRes
+        private static int getIconResFor(String gameName) {
+            switch (gameName) {
+                case "League of Legends":
+                    return R.drawable.ic_league_of_legends;
+                case "Valorant":
+                    return R.drawable.ic_valorant;
+                case "Counter Strike":
+                    return R.drawable.ic_counter_strike;
+                case "Minecraft":
+                    return R.drawable.ic_minecraft;
+                case "REPO":
+                    return R.drawable.ic_repo;
+                case "Delta Force":
+                    return R.drawable.ic_delta_force;
+                case "Call of Duty":
+                    return R.drawable.ic_call_of_duty;
+                default:
+                    return R.drawable.ic_default_game;
+            }
+        }
     }
 }

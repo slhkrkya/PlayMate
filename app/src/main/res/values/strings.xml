@@ -3,4 +3,5 @@
     <string name="default_web_client_id">35291785786-qlt5p32gvhj41npgakgn8j4ubg5sk4d1.apps.googleusercontent.com</string>
     <string name="navigation_drawer_open">Menüyü Aç</string>
     <string name="navigation_drawer_close">Menüyü Kapat</string>
+    <string name="game_icon_desc">Oyun ikonu</string>
 </resources>
