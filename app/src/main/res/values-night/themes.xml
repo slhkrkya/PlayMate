@@ -18,6 +18,6 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
 
         <!-- Opsiyonel: Pencere arka planı -->
-        <item name="android:windowBackground">@android:color/background_dark</item>
+        <item name="android:windowBackground">@drawable/bg_wave_vector_playmate_dark</item>
     </style>
 </resources>

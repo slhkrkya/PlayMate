@@ -28,25 +28,41 @@ public class RegisterFragment extends Fragment {
         binding = FragmentRegisterBinding.inflate(inflater, container, false);
         viewModel = new ViewModelProvider(this).get(RegisterViewModel.class);
 
-        // 🔐 Kayıt butonu
         binding.buttonRegister.setOnClickListener(v -> {
-            String email = binding.editTextEmail.getText().toString().trim();
-            String password = binding.editTextPassword.getText().toString().trim();
+            String email           = binding.editTextEmail.getText().toString().trim();
+            String password        = binding.editTextPassword.getText().toString();
+            String passwordConfirm = binding.editTextPasswordConfirm.getText().toString();
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(getContext(), "Boş alan bırakmayın!", Toast.LENGTH_SHORT).show();
+            // 1) Boş alan kontrolü
+            if (email.isEmpty() || password.isEmpty() || passwordConfirm.isEmpty()) {
+                Toast.makeText(getContext(), "Lütfen tüm alanları doldurunuz.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // 2) Şifre eşleşme kontrolü
+            if (!password.equals(passwordConfirm)) {
+                binding.editTextPasswordConfirm.setError("Şifreler eşleşmiyor");
+                binding.editTextPasswordConfirm.requestFocus();
+                return;
+            }
+
+            // 3) Kayıt isteği
             viewModel.register(email, password)
                     .addOnSuccessListener(authResult -> {
                         Toast.makeText(getContext(), "Kayıt başarılı!", Toast.LENGTH_SHORT).show();
 
+                        // FirebaseUser'dan UID al, kullanıcı veritabanına kaydet
                         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(uid);
+                        DatabaseReference userRef = FirebaseDatabase
+                                .getInstance()
+                                .getReference("users")
+                                .child(uid);
+
+                        // User modeli: User(String uid, String username, String email, String favoriteGame, String location, String profileImageUrl)
                         User user = new User(uid, null, email, null, null,null);
                         userRef.setValue(user);
 
+                        // Giriş ekranına dön
                         Navigation.findNavController(binding.getRoot())
                                 .navigate(R.id.action_registerFragment_to_loginFragment);
                     })
@@ -59,7 +75,6 @@ public class RegisterFragment extends Fragment {
                     });
         });
 
-        // 🔄 Giriş ekranına yönlendirme
         binding.textViewGoToLogin.setOnClickListener(v -> {
             Navigation.findNavController(binding.getRoot())
                     .navigate(R.id.action_registerFragment_to_loginFragment);

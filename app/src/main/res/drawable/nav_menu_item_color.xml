@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Seçili öğe -->
+    <item android:color="@color/light_coral" android:state_checked="true"/>
+    <!-- Diğer öğeler -->
+    <item android:color="@color/keppel"   android:state_checked="false"/>
+</selector>

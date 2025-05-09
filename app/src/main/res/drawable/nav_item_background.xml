@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorControlHighlight">
+    <item>
+        <shape android:shape="rectangle">
+            <!-- Hapishanede earth_yellow tonuyla hafif bir zemin -->
+            <solid android:color="@color/earth_yellow" />
+        </shape>
+    </item>
+</ripple>

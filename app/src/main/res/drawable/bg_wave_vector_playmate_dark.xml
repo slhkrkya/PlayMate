@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="640dp"
+    android:viewportWidth="360"
+    android:viewportHeight="640">
+
+    <!-- Zemin: Dark background -->
+    <path
+        android:fillColor="@android:color/background_dark"
+        android:pathData="M0,0 L360,0 L360,640 L0,640 Z" />
+
+    <!-- Alt dalga: Primary color (lapis_lazuli) -->
+    <path
+        android:fillColor="@color/lapis_lazuli"
+        android:pathData="
+            M0,220
+            C90,260 270,180 360,220
+            L360,640
+            L0,640
+            Z" />
+
+    <!-- Üst dalga: PrimaryVariant (light_coral) -->
+    <path
+        android:fillColor="@color/light_coral"
+        android:pathData="
+            M0,190
+            C90,230 270,150 360,190
+            L360,640
+            L0,640
+            Z" />
+
+</vector>
