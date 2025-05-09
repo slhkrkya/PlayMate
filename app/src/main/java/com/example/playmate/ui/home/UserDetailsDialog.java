@@ -28,6 +28,7 @@ public class UserDetailsDialog extends DialogFragment {
 
     public static UserDetailsDialog newInstance(User user) {
         UserDetailsDialog dialog = new UserDetailsDialog();
+        dialog.user = user;
         Bundle args = new Bundle();
         args.putString("username", user.getUsername());
         args.putString("location", user.getLocation());
@@ -92,5 +93,9 @@ public class UserDetailsDialog extends DialogFragment {
 
         builder.setView(view);
         return builder.create();
+    }
+
+    public void setListener(OnUserActionListener listener) {
+        this.listener = listener;
     }
 } 
