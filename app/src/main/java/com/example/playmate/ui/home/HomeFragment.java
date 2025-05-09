@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserActionListener {
 
     private FragmentHomeBinding binding;
     private UserAdapter adapter;
@@ -57,8 +57,8 @@ public class HomeFragment extends Fragment {
         userList = new ArrayList<>();
         filteredUserList = new ArrayList<>();
         adapter = new UserAdapter(filteredUserList, user -> {
-            // Şimdilik kullanıcıya tıklanınca Toast göster
-            Toast.makeText(getContext(), user.getUsername() + " seçildi", Toast.LENGTH_SHORT).show();
+            UserDetailsDialog dialog = UserDetailsDialog.newInstance(user);
+            dialog.show(getChildFragmentManager(), "UserDetailsDialog");
         });
 
         binding.recyclerViewUsers.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -71,6 +71,18 @@ public class HomeFragment extends Fragment {
         getUsersFromFirebase();
 
         return binding.getRoot();
+    }
+
+    @Override
+    public void onMessageUser(User user) {
+        // TODO: Implement messaging functionality
+        Toast.makeText(getContext(), user.getUsername() + " kullanıcısına mesaj gönderme özelliği yakında eklenecek", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onAddFriend(User user) {
+        // TODO: Implement friend request functionality
+        Toast.makeText(getContext(), user.getUsername() + " kullanıcısına arkadaşlık isteği gönderme özelliği yakında eklenecek", Toast.LENGTH_SHORT).show();
     }
 
     private void showGameSelectionDialog() {
