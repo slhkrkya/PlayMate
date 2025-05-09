@@ -1,22 +1,41 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.PlayMate" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- ActionBar'ı devre dışı bırak -->
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
 
-        <!-- Ana Renkler (daha koyu ve derin tonlar) -->
-        <item name="colorPrimary">@color/dark_purple</item>
+    <!-- Dark Mode Teması -->
+    <style name="Theme.PlayMate" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
+        <!-- Arka Plan Tonları (gradient ile uyumlu) -->
+        <item name="colorPrimary">@color/wisteria</item>
         <item name="colorPrimaryVariant">@color/eminence</item>
-        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorOnPrimary">@android:color/black</item>
 
         <!-- Yardımcı Renkler -->
         <item name="colorSecondary">@color/sky_magenta</item>
-        <item name="colorSecondaryVariant">@color/wisteria</item>
-        <item name="colorOnSecondary">@android:color/white</item>
+        <item name="colorSecondaryVariant">@color/pink_lavender</item>
+        <item name="colorOnSecondary">@android:color/black</item>
 
-        <!-- Durum çubuğu rengi -->
+        <!-- Durum Çubuğu -->
         <item name="android:statusBarColor">@color/eminence</item>
 
-
+        <!-- Arka Plan -->
+        <item name="android:windowBackground">@drawable/gradient_background_dark</item>
     </style>
+
+    <!-- Dark Mode'da Profil Text görünür olmalı -->
+    <style name="ProfileText">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_marginTop">16dp</item>
+    </style>
+
+    <!-- Buton görünürlüğü için -->
+    <style name="PrimaryButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:backgroundTint">@color/sky_magenta</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:layout_marginTop">32dp</item>
+        <item name="android:paddingVertical">12dp</item>
+    </style>
+
 </resources>
