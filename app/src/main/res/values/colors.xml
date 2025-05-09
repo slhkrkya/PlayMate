@@ -7,4 +7,7 @@
     <color name="turquoise">#49DCB1</color>
     <color name="earth_yellow">#EEB868</color>
     <color name="teal_200">#49DCB1</color>
+    
+    <!-- Text Colors -->
+    <color name="text_color">#63666A</color>  <!-- Pantone Cool Gray 10 C -->
 </resources>
