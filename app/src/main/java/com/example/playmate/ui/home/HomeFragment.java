@@ -25,6 +25,7 @@ import java.util.List;
 
 public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserActionListener {
 
+    private static final String TAG = "HomeFragment";
     private FragmentHomeBinding binding;
     private UserAdapter adapter;
     private List<User> userList;
@@ -34,6 +35,8 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
     private DatabaseReference usersRef;
     private DatabaseReference friendRequestsRef;
     private String currentUserId;
+    private ValueEventListener usersListener;
+    private ValueEventListener friendRequestsListener;
 
     private static final String[] GAMES = {
             "Tümünü Göster",
@@ -95,7 +98,7 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
 
     private void sendFriendRequest(User user) {
         // Add log and toast to confirm method is triggered
-        Log.d("FRIEND_REQUEST", "Attempting to send friend request to: " + user.getUid());
+        Log.d(TAG, "Attempting to send friend request to: " + user.getUid());
         Toast.makeText(getContext(), "Attempting to send friend request...", Toast.LENGTH_SHORT).show();
         // Önce mevcut istekleri kontrol et
         friendRequestsRef.orderByChild("senderId")
@@ -121,27 +124,25 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
                             newRequest.setRequestId(requestId);
 
                             // Debug için log ekle
-                            System.out.println("Sending friend request: " + newRequest.toMap());
+                            Log.d(TAG, "Sending friend request: " + newRequest.toMap());
 
                             friendRequestsRef.child(requestId).setValue(newRequest.toMap())
                                     .addOnSuccessListener(aVoid -> {
                                         Toast.makeText(getContext(), "Arkadaşlık isteği gönderildi", Toast.LENGTH_SHORT).show();
                                         // Debug için log ekle
-                                        System.out.println("Friend request saved successfully with ID: " + requestId);
+                                        Log.d(TAG, "Friend request saved successfully with ID: " + requestId);
                                     })
                                     .addOnFailureListener(e -> {
                                         Toast.makeText(getContext(), "İstek gönderilemedi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                         // Debug için log ekle
-                                        System.out.println("Error saving friend request: " + e.getMessage());
+                                        Log.e(TAG, "Error saving friend request: " + e.getMessage());
                                     });
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(getContext(), "Hata: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                        // Debug için log ekle
-                        System.out.println("Database error: " + error.getMessage());
+                        Log.e(TAG, "Database error: " + error.getMessage());
                     }
                 });
     }
@@ -193,7 +194,7 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
     }
 
     private void getUsersFromFirebase() {
-        usersRef.addValueEventListener(new ValueEventListener() {
+        usersListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 userList.clear();
@@ -213,63 +214,76 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Veri alınamadı: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Error loading users: " + error.getMessage());
             }
-        });
+        };
+        usersRef.addValueEventListener(usersListener);
     }
 
     private void listenForFriendRequests() {
-        // Debug için log ekle
-        System.out.println("Starting to listen for friend requests for user: " + currentUserId);
+        Log.d(TAG, "Starting to listen for friend requests for user: " + currentUserId);
+
+        friendRequestsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d(TAG, "Received friend requests update. Count: " + snapshot.getChildrenCount());
+
+                for (DataSnapshot requestSnap : snapshot.getChildren()) {
+                    FriendRequest request = requestSnap.getValue(FriendRequest.class);
+
+                    if (request == null) {
+                        Log.e(TAG, "Request null! DataSnapshot: " + requestSnap);
+                        continue;
+                    }
+
+                    if (request.getStatus() == null || request.getSenderId() == null || request.getReceiverId() == null) {
+                        Log.e(TAG, "Missing fields in request, skipping.");
+                        continue;
+                    }
+
+                    Log.d(TAG, "Request found: " + request.toMap());
+
+                    if ("pending".equals(request.getStatus())) {
+                        if (!requestSnap.hasChild("shown")) {
+                            showFriendRequestDialog(request);
+                            requestSnap.getRef().child("shown").setValue(true)
+                                    .addOnSuccessListener(aVoid ->
+                                            Log.d(TAG, "Marked request as shown: " + request.getRequestId())
+                                    )
+                                    .addOnFailureListener(e ->
+                                            Log.e(TAG, "Error marking request as shown: " + e.getMessage())
+                                    );
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Error loading friend requests: " + error.getMessage());
+            }
+        };
 
         friendRequestsRef.orderByChild("receiverId")
                 .equalTo(currentUserId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        System.out.println("Received friend requests update. Count: " + snapshot.getChildrenCount());
-
-                        for (DataSnapshot requestSnap : snapshot.getChildren()) {
-                            FriendRequest request = requestSnap.getValue(FriendRequest.class);
-
-                            if (request == null) {
-                                System.out.println("Request null! DataSnapshot: " + requestSnap);
-                                continue;
-                            }
-
-                            if (request.getStatus() == null || request.getSenderId() == null || request.getReceiverId() == null) {
-                                System.out.println("Eksik alan var, atlanıyor.");
-                                continue;
-                            }
-
-                            System.out.println("Request found: " + request.toMap());
-
-                            if ("pending".equals(request.getStatus())) {
-                                if (!requestSnap.hasChild("shown")) {
-                                    showFriendRequestDialog(request);
-                                    requestSnap.getRef().child("shown").setValue(true)
-                                            .addOnSuccessListener(aVoid ->
-                                                    System.out.println("Marked request as shown: " + request.getRequestId())
-                                            )
-                                            .addOnFailureListener(e ->
-                                                    System.out.println("Error marking request as shown: " + e.getMessage())
-                                            );
-                                }
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(getContext(), "İstekler alınamadı: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                        // Debug için log ekle
-                        System.out.println("Error listening for friend requests: " + error.getMessage());
-                    }
-                });
+                .addValueEventListener(friendRequestsListener);
     }
 
     private void showFriendRequestDialog(FriendRequest request) {
         FriendRequestDialog dialog = FriendRequestDialog.newInstance(request.getRequestId(), request.getSenderId());
         dialog.show(getChildFragmentManager(), "FriendRequestDialog");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Remove Firebase listeners
+        if (usersListener != null) {
+            usersRef.removeEventListener(usersListener);
+        }
+        if (friendRequestsListener != null) {
+            friendRequestsRef.removeEventListener(friendRequestsListener);
+        }
+        binding = null;
     }
 }
