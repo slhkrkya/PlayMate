@@ -39,7 +39,7 @@ public class EditProfileFragment extends Fragment {
     private FragmentEditProfileBinding binding;
     private Uri selectedImageUri;
     private List<String> selectedGames = new ArrayList<>();
-    private String selectedLocation = "";
+    private List<String> selectedLocations = new ArrayList<>();
     private static final String[] GAMES = {
             "League of Legends",
             "Valorant",
@@ -111,7 +111,12 @@ public class EditProfileFragment extends Fragment {
         binding.spinnerLocation.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedLocation = LOCATIONS[position];
+                String selectedLocation = LOCATIONS[position];
+                if (!selectedLocations.contains(selectedLocation)) {
+                    selectedLocations.add(selectedLocation);
+                    addLocationChip(selectedLocation);
+                    updateLocationSpinnerTitle();
+                }
             }
 
             @Override
@@ -150,13 +155,16 @@ public class EditProfileFragment extends Fragment {
                     updateSpinnerTitle();
                 }
 
-                // Load location
-                if (currentUser.getLocation() != null) {
-                    selectedLocation = currentUser.getLocation();
-                    int locationIndex = Arrays.asList(LOCATIONS).indexOf(selectedLocation);
-                    if (locationIndex != -1) {
-                        binding.spinnerLocation.setSelection(locationIndex);
+                // Load locations
+                if (currentUser.getLocations() != null) {
+                    String[] existingLocations = currentUser.getLocations().split(",");
+                    for (String location : existingLocations) {
+                        if (!location.trim().isEmpty()) {
+                            selectedLocations.add(location.trim());
+                            addLocationChip(location.trim());
+                        }
                     }
+                    updateLocationSpinnerTitle();
                 }
             }
         });
@@ -166,47 +174,46 @@ public class EditProfileFragment extends Fragment {
         Chip chip = new Chip(requireContext());
         chip.setText(game);
         chip.setCloseIconVisible(true);
-        
-        // Make close icon more visible
-        chip.setCloseIconSize(getResources().getDimension(R.dimen.chip_close_icon_size));
-        chip.setCloseIconTint(ContextCompat.getColorStateList(requireContext(), android.R.color.white));
-        
-        // Chip background
-        chip.setChipBackgroundColorResource(R.color.lapis_lazuli);
-        
-        // Text color
-        chip.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
-        
-        // Add padding to make chip more spacious
-        chip.setChipMinHeight(getResources().getDimension(R.dimen.chip_min_height));
-        chip.setPadding(
-            getResources().getDimensionPixelSize(R.dimen.chip_padding_horizontal),
-            getResources().getDimensionPixelSize(R.dimen.chip_padding_vertical),
-            getResources().getDimensionPixelSize(R.dimen.chip_padding_horizontal),
-            getResources().getDimensionPixelSize(R.dimen.chip_padding_vertical)
-        );
-
         chip.setOnCloseIconClickListener(v -> {
             selectedGames.remove(game);
             binding.chipGroupSelectedGames.removeView(chip);
             updateSpinnerTitle();
         });
-
         binding.chipGroupSelectedGames.addView(chip);
+    }
+
+    private void addLocationChip(String location) {
+        Chip chip = new Chip(requireContext());
+        chip.setText(location);
+        chip.setCloseIconVisible(true);
+        chip.setOnCloseIconClickListener(v -> {
+            selectedLocations.remove(location);
+            binding.chipGroupSelectedLocations.removeView(chip);
+            updateLocationSpinnerTitle();
+        });
+        binding.chipGroupSelectedLocations.addView(chip);
     }
 
     private void updateSpinnerTitle() {
         if (selectedGames.isEmpty()) {
-            binding.spinnerFavoriteGames.setPrompt("Favori Oyunlar Seçin");
+            binding.spinnerFavoriteGames.setPrompt("Favori Oyun Seçin");
         } else {
-            binding.spinnerFavoriteGames.setPrompt(selectedGames.size() + " oyun seçildi");
+            binding.spinnerFavoriteGames.setPrompt("Başka Oyun Ekle");
+        }
+    }
+
+    private void updateLocationSpinnerTitle() {
+        if (selectedLocations.isEmpty()) {
+            binding.spinnerLocation.setPrompt("Konum Seçin");
+        } else {
+            binding.spinnerLocation.setPrompt("Başka Konum Ekle");
         }
     }
 
     private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        imagePickerLauncher.launch(Intent.createChooser(intent, "Profil Resmi Seç"));
+        imagePickerLauncher.launch(intent);
     }
 
     private void saveProfile() {
@@ -228,8 +235,9 @@ public class EditProfileFragment extends Fragment {
             String newUsername = binding.editTextUsername.getText().toString().trim();
             String finalUsername = newUsername.isEmpty() ? currentUser.getUsername() : newUsername;
 
-            // Seçili oyunları virgülle ayırarak birleştir
+            // Seçili oyunları ve konumları virgülle ayırarak birleştir
             String selectedGamesString = String.join(",", selectedGames);
+            String selectedLocationsString = String.join(",", selectedLocations);
 
             // Yeni kullanıcı nesnesi
             User updatedUser = new User(
@@ -237,7 +245,7 @@ public class EditProfileFragment extends Fragment {
                     finalUsername,
                     currentUser.getEmail(),
                     selectedGamesString,
-                    selectedLocation,
+                    selectedLocationsString,
                     imageUri
             );
 

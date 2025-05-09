@@ -74,18 +74,35 @@ public class ProfileFragment extends Fragment {
                 binding.textEmail
                         .setText("Email: " + user.getEmail());
 
-                // Konum
-                binding.textLocation
-                        .setText("Konum: " + user.getLocation());
-
-                // Favori Oyun → CSV’den ilk öğeyi ayıkla
-                String favs = user.getFavoriteGame();
-                String firstGame = "";
-                if (favs != null && !favs.isEmpty()) {
-                    firstGame = favs.split(",")[0].trim();
+                // Konumlar
+                if (user.getLocations() != null && !user.getLocations().isEmpty()) {
+                    StringBuilder locationsText = new StringBuilder("Konumlar: ");
+                    String[] locations = user.getLocations().split(",");
+                    for (int i = 0; i < locations.length; i++) {
+                        locationsText.append(locations[i].trim());
+                        if (i < locations.length - 1) {
+                            locationsText.append(", ");
+                        }
+                    }
+                    binding.textLocation.setText(locationsText.toString());
+                } else {
+                    binding.textLocation.setText("Konumlar: Belirtilmemiş");
                 }
-                binding.textFavoriteGame
-                        .setText("Favori Oyun: " + firstGame);
+
+                // Favori Oyunlar
+                if (user.getFavoriteGame() != null && !user.getFavoriteGame().isEmpty()) {
+                    StringBuilder gamesText = new StringBuilder("Favori Oyunlar: ");
+                    String[] games = user.getFavoriteGame().split(",");
+                    for (int i = 0; i < games.length; i++) {
+                        gamesText.append(games[i].trim());
+                        if (i < games.length - 1) {
+                            gamesText.append(", ");
+                        }
+                    }
+                    binding.textFavoriteGame.setText(gamesText.toString());
+                } else {
+                    binding.textFavoriteGame.setText("Favori Oyunlar: Belirtilmemiş");
+                }
             }
 
             @Override

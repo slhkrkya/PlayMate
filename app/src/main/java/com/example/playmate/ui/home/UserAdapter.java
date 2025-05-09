@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.playmate.R;
 import com.example.playmate.data.model.User;
+import com.example.playmate.databinding.ItemUserBinding;
 
 import java.util.List;
 
@@ -32,14 +33,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_user, parent, false);
-        return new UserViewHolder(view);
+        ItemUserBinding binding = ItemUserBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
+        return new UserViewHolder(binding, listener);
     }
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        holder.bind(userList.get(position), listener);
+        User user = userList.get(position);
+        holder.bind(user);
     }
 
     @Override
@@ -48,21 +53,31 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     public static class UserViewHolder extends RecyclerView.ViewHolder {
-        private final TextView usernameText;
-        private final TextView locationText;
-        private final ImageView gameIcon;
+        private final ItemUserBinding binding;
+        private final OnUserClickListener listener;
 
-        public UserViewHolder(@NonNull View itemView) {
-            super(itemView);
-            usernameText = itemView.findViewById(R.id.textViewUsername);
-            locationText = itemView.findViewById(R.id.textViewLocation);
-            gameIcon     = itemView.findViewById(R.id.imageViewGameIcon);
+        public UserViewHolder(ItemUserBinding binding, OnUserClickListener listener) {
+            super(binding.getRoot());
+            this.binding = binding;
+            this.listener = listener;
         }
 
-        public void bind(User user, OnUserClickListener listener) {
-            // Username & Location
-            usernameText.setText(user.getUsername());
-            locationText.setText(user.getLocation());
+        public void bind(User user) {
+            binding.textViewUsername.setText(user.getUsername());
+            
+            // Handle multiple locations
+            String locations = user.getLocations();
+            if (locations != null && !locations.isEmpty()) {
+                String[] locationArray = locations.split(",");
+                if (locationArray.length > 0) {
+                    // Show first location as primary
+                    binding.textViewLocation.setText(locationArray[0].trim());
+                } else {
+                    binding.textViewLocation.setText("Belirtilmemiş");
+                }
+            } else {
+                binding.textViewLocation.setText("Belirtilmemiş");
+            }
 
             // Split CSV and get first game
             String favs = user.getFavoriteGame(); // e.g. "REPO,Counter Strike,…"
@@ -74,10 +89,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
             // Find and set drawable resource
             int iconRes = getIconResFor(firstGame);
-            gameIcon.setImageResource(iconRes);
+            binding.imageViewGameIcon.setImageResource(iconRes);
 
             // Handle click
-            itemView.setOnClickListener(v -> listener.onUserClick(user));
+            itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onUserClick(user);
+                }
+            });
         }
 
         @DrawableRes

@@ -67,6 +67,14 @@
             android:background="@android:drawable/btn_dropdown"
             android:backgroundTint="@color/lapis_lazuli"
             android:spinnerMode="dialog"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Seçili Konumlar -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupSelectedLocations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp" />
 
         <!-- Kaydet Butonu -->

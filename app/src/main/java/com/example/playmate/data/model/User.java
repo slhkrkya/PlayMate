@@ -8,17 +8,17 @@ public class User {
     private String username;
     private String email;
     private String favoriteGame;
-    private String location;
+    private String locations; // Changed from location to locations to store multiple locations
     private String profileImageUrl; // Yeni alan
 
     public User() {} // Firebase için boş constructor
 
-    public User(String uid, String username, String email, String favoriteGame, String location, String profileImageUrl) {
+    public User(String uid, String username, String email, String favoriteGame, String locations, String profileImageUrl) {
         this.uid = uid;
         this.username = username;
         this.email = email;
         this.favoriteGame = favoriteGame;
-        this.location = location;
+        this.locations = locations;
         this.profileImageUrl = profileImageUrl;
     }
 
@@ -54,12 +54,12 @@ public class User {
         this.favoriteGame = favoriteGame;
     }
 
-    public String getLocation() {
-        return location;
+    public String getLocations() {
+        return locations;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setLocations(String locations) {
+        this.locations = locations;
     }
 
     public String getProfileImageUrl() {
@@ -77,7 +77,7 @@ public class User {
         result.put("username", username);
         result.put("email", email);
         result.put("favoriteGame", favoriteGame);
-        result.put("location", location);
+        result.put("locations", locations);
         result.put("profileImageUrl", profileImageUrl); // Yeni alan ekleniyor
         return result;
     }

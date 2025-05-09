@@ -28,12 +28,12 @@ public class UserDetailsDialog extends DialogFragment {
 
     public static UserDetailsDialog newInstance(User user) {
         UserDetailsDialog dialog = new UserDetailsDialog();
-        dialog.user = user;
         Bundle args = new Bundle();
         args.putString("username", user.getUsername());
-        args.putString("location", user.getLocation());
+        args.putString("locations", user.getLocations());
         args.putString("favoriteGames", user.getFavoriteGame());
         dialog.setArguments(args);
+        dialog.user = user;
         return dialog;
     }
 
@@ -62,8 +62,20 @@ public class UserDetailsDialog extends DialogFragment {
         // Set user information
         textViewUsername.setText(getArguments().getString("username"));
         
-        String location = getArguments().getString("location");
-        textViewLocation.setText(location != null ? location : "Belirtilmemiş");
+        String locations = getArguments().getString("locations");
+        if (locations != null && !locations.isEmpty()) {
+            StringBuilder locationsText = new StringBuilder();
+            String[] locationArray = locations.split(",");
+            for (int i = 0; i < locationArray.length; i++) {
+                locationsText.append("• ").append(locationArray[i].trim());
+                if (i < locationArray.length - 1) {
+                    locationsText.append("\n");
+                }
+            }
+            textViewLocation.setText(locationsText.toString());
+        } else {
+            textViewLocation.setText("Belirtilmemiş");
+        }
 
         String games = getArguments().getString("favoriteGames");
         if (games != null && !games.isEmpty()) {
