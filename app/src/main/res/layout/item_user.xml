@@ -7,14 +7,16 @@
     android:layout_margin="8dp"
     card_view:cardCornerRadius="12dp"
     card_view:cardElevation="4dp"
-    card_view:cardBackgroundColor="@color/lapis_lazuli">
+    card_view:cardBackgroundColor="@android:color/transparent"
+    card_view:cardUseCompatPadding="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="12dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:background="@drawable/box_bg">
 
         <!-- Sol tarafta metinler -->
         <LinearLayout
@@ -45,7 +47,7 @@
             android:id="@+id/imageViewGameIcon"
             android:layout_width="94sp"
             android:layout_height="48sp"
-            android:layout_marginStart="8sp"
+            android:layout_marginStart="8dp"
             android:contentDescription="@string/game_icon_desc"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_default_game"/>
