@@ -5,7 +5,8 @@
     android:id="@+id/profileRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16sp">
+    android:padding="16sp"
+    android:background="@drawable/gradient_background">
 
     <!-- Üst katman: Dalgalı geçişli görünüm -->
 
@@ -15,7 +16,7 @@
         android:id="@+id/viewBottom"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/teal_200"
+        android:background="@drawable/gradient_background"
         app:layout_constraintTop_toBottomOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -95,7 +96,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Profili Düzenle"
-        android:backgroundTint="@color/light_coral"
+        android:backgroundTint="@color/sky_magenta"
         android:textAllCaps="false"
         app:cornerRadius="24sp"
         android:paddingVertical="12sp"

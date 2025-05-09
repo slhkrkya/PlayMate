@@ -12,7 +12,7 @@
         android:text="Arkadaşlarım"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@color/lapis_lazuli"
+        android:textColor="@color/eminence"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

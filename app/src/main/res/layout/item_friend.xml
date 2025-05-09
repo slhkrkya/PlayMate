@@ -30,7 +30,7 @@
             android:layout_marginStart="16dp"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@color/lapis_lazuli"
+            android:textColor="@color/eminence"
             app:layout_constraintStart_toEndOf="@id/imageViewProfile"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/imageViewProfile"/>

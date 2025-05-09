@@ -12,7 +12,7 @@
         android:text="PlayMate"
         android:textSize="42sp"
         android:textStyle="bold"
-        android:textColor="@color/lapis_lazuli"
+        android:textColor="@color/eminence"
         android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -61,7 +61,7 @@
     <TextView
         android:id="@+id/textViewGoToRegister"
         android:text="Hesabınız yok mu? Kayıt ol"
-        android:textColor="@color/lapis_lazuli"
+        android:textColor="@color/eminence"
         android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -74,7 +74,7 @@
     <TextView
         android:id="@+id/textViewGoToGoogle"
         android:text="Google hesabı ile giriş yap"
-        android:textColor="@color/lapis_lazuli"
+        android:textColor="@color/eminence"
         android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -4,7 +4,7 @@
     <item>
         <shape android:shape="rectangle">
             <!-- Hapishanede earth_yellow tonuyla hafif bir zemin -->
-            <solid android:color="@color/earth_yellow" />
+            <solid android:color="@color/pink_lavender" />
         </shape>
     </item>
 </ripple>

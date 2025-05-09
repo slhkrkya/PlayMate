@@ -7,12 +7,12 @@
 
     <!-- Zemin -->
     <path
-        android:fillColor="@color/earth_yellow"
+        android:fillColor="@color/eminence"
         android:pathData="M0,0 L360,0 L360,640 L0,640 Z" />
 
     <!-- Alt dalga: gölge efekti için biraz koyu -->
     <path
-        android:fillColor="@color/keppel"
+        android:fillColor="@color/wisteria"
         android:pathData="
             M0,180
             C90,220 270,140 360,180
@@ -22,7 +22,7 @@
 
     <!-- Üst dalga: daha açık ton -->
     <path
-        android:fillColor="@color/turquoise"
+        android:fillColor="@color/pink_lavender"
         android:pathData="
             M0,150
             C90,190 270,110 360,150

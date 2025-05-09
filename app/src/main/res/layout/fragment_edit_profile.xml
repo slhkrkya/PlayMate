@@ -46,7 +46,7 @@
             android:minHeight="48dp"
             android:padding="12dp"
             android:background="@android:drawable/btn_dropdown"
-            android:backgroundTint="@color/lapis_lazuli"
+            android:backgroundTint="@color/eminence"
             android:spinnerMode="dialog" />
 
         <!-- Seçili Oyunlar -->
@@ -65,7 +65,7 @@
             android:minHeight="48dp"
             android:padding="12dp"
             android:background="@android:drawable/btn_dropdown"
-            android:backgroundTint="@color/lapis_lazuli"
+            android:backgroundTint="@color/eminence"
             android:spinnerMode="dialog"
             android:layout_marginBottom="8dp" />
 

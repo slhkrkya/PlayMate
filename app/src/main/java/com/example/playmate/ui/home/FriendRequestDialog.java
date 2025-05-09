@@ -1,6 +1,7 @@
 package com.example.playmate.ui.home;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,7 +75,10 @@ public class FriendRequestDialog extends DialogFragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Kullanıcı bilgileri alınamadı", Toast.LENGTH_SHORT).show();
+                Context context = getContext();
+                if (context != null) {
+                    Toast.makeText(context, "Kullanıcı bilgileri alınamadı", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -96,11 +100,17 @@ public class FriendRequestDialog extends DialogFragment {
                     }
 
                     String message = status.equals("accepted") ? "Arkadaşlık isteği kabul edildi" : "Arkadaşlık isteği reddedildi";
-                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    Context context = getContext();
+                    if (context != null) {
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                    }
                     dismiss();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "İşlem başarısız: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Context context = getContext();
+                    if (context != null) {
+                        Toast.makeText(context, "İşlem başarısız: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 

@@ -12,7 +12,7 @@
 
     <!-- Alt dalga: Primary color (lapis_lazuli) -->
     <path
-        android:fillColor="@color/lapis_lazuli"
+        android:fillColor="@color/eminence"
         android:pathData="
             M0,220
             C90,260 270,180 360,220
@@ -22,7 +22,7 @@
 
     <!-- Üst dalga: PrimaryVariant (light_coral) -->
     <path
-        android:fillColor="@color/light_coral"
+        android:fillColor="@color/wisteria"
         android:pathData="
             M0,190
             C90,230 270,150 360,190

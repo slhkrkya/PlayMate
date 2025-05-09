@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Colors -->
-    <color name="light_coral">#EF767A</color>
-    <color name="lapis_lazuli">#456990</color>
-    <color name="keppel">#49BEAA</color>
-    <color name="turquoise">#49DCB1</color>
-    <color name="earth_yellow">#EEB868</color>
-    <color name="teal_200">#49DCB1</color>
-    
-    <!-- Text Colors -->
-    <color name="text_color">#63666A</color>  <!-- Pantone Cool Gray 10 C -->
+    <!-- PlayMate Color Palette -->
+    <color name="dark_purple">#210B2C</color>
+    <color name="eminence">#55286F</color>
+    <color name="wisteria">#BC96E6</color>
+    <color name="pink_lavender">#D8B4E2</color>
+    <color name="sky_magenta">#AE759F</color>
+
+    <!-- Text Color -->
+    <color name="text_color">#EEEEEE</color> <!-- Yumuşak beyaz ton -->
 </resources>

@@ -1,6 +1,7 @@
 package com.example.playmate.ui.home;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -87,7 +88,10 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
     @Override
     public void onMessageUser(User user) {
         // TODO: Implement messaging functionality
-        Toast.makeText(getContext(), user.getUsername() + " kullanıcısına mesaj gönderme özelliği yakında eklenecek", Toast.LENGTH_SHORT).show();
+        Context context = getContext();
+        if (context != null) {
+            Toast.makeText(context, user.getUsername() + " kullanıcısına mesaj gönderme özelliği yakında eklenecek", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -99,7 +103,10 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
     private void sendFriendRequest(User user) {
         // Add log and toast to confirm method is triggered
         Log.d(TAG, "Attempting to send friend request to: " + user.getUid());
-        Toast.makeText(getContext(), "Attempting to send friend request...", Toast.LENGTH_SHORT).show();
+        Context context = getContext();
+        if (context != null) {
+            Toast.makeText(context, "Attempting to send friend request...", Toast.LENGTH_SHORT).show();
+        }
         // Önce mevcut istekleri kontrol et
         friendRequestsRef.orderByChild("senderId")
                 .equalTo(currentUserId)
@@ -116,7 +123,10 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
                         }
 
                         if (requestExists) {
-                            Toast.makeText(getContext(), "Bu kullanıcıya zaten istek gönderilmiş", Toast.LENGTH_SHORT).show();
+                            Context context = getContext();
+                            if (context != null) {
+                                Toast.makeText(context, "Bu kullanıcıya zaten istek gönderilmiş", Toast.LENGTH_SHORT).show();
+                            }
                         } else {
                             // Yeni istek oluştur
                             String requestId = friendRequestsRef.push().getKey();
@@ -128,12 +138,18 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
 
                             friendRequestsRef.child(requestId).setValue(newRequest.toMap())
                                     .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(getContext(), "Arkadaşlık isteği gönderildi", Toast.LENGTH_SHORT).show();
+                                        Context context = getContext();
+                                        if (context != null) {
+                                            Toast.makeText(context, "Arkadaşlık isteği gönderildi", Toast.LENGTH_SHORT).show();
+                                        }
                                         // Debug için log ekle
                                         Log.d(TAG, "Friend request saved successfully with ID: " + requestId);
                                     })
                                     .addOnFailureListener(e -> {
-                                        Toast.makeText(getContext(), "İstek gönderilemedi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        Context context = getContext();
+                                        if (context != null) {
+                                            Toast.makeText(context, "İstek gönderilemedi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
                                         // Debug için log ekle
                                         Log.e(TAG, "Error saving friend request: " + e.getMessage());
                                     });
@@ -189,7 +205,10 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
         adapter.notifyDataSetChanged();
         
         if (filteredUserList.isEmpty()) {
-            Toast.makeText(getContext(), game + " oyununu oynayan arkadaş bulunamadı", Toast.LENGTH_SHORT).show();
+            Context context = getContext();
+            if (context != null) {
+                Toast.makeText(context, game + " oyununu oynayan arkadaş bulunamadı", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

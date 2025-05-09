@@ -4,20 +4,19 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
 
-        <!-- Ana Renkler (daha yumuşak tonlar) -->
-        <item name="colorPrimary">@color/lapis_lazuli</item>
-        <item name="colorPrimaryVariant">@color/light_coral</item>
+        <!-- Ana Renkler (daha koyu ve derin tonlar) -->
+        <item name="colorPrimary">@color/dark_purple</item>
+        <item name="colorPrimaryVariant">@color/eminence</item>
         <item name="colorOnPrimary">@android:color/white</item>
 
         <!-- Yardımcı Renkler -->
-        <item name="colorSecondary">@color/keppel</item>
-        <item name="colorSecondaryVariant">@color/turquoise</item>
-        <item name="colorOnSecondary">@android:color/black</item>
+        <item name="colorSecondary">@color/sky_magenta</item>
+        <item name="colorSecondaryVariant">@color/wisteria</item>
+        <item name="colorOnSecondary">@android:color/white</item>
 
         <!-- Durum çubuğu rengi -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor">@color/eminence</item>
 
-        <!-- Opsiyonel: Pencere arka planı -->
-        <item name="android:windowBackground">@drawable/bg_wave_vector_playmate_dark</item>
+
     </style>
 </resources>
