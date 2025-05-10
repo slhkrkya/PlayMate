@@ -19,6 +19,7 @@
             android:src="@drawable/ic_defaultprofile"
             android:scaleType="centerCrop"
             android:background="@drawable/circle_background"
+            android:clipToOutline="true"
             android:contentDescription="Profil Resmi"
             android:clickable="true"
             android:focusable="true" />

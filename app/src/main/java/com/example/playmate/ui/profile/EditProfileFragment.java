@@ -252,7 +252,7 @@ public class EditProfileFragment extends Fragment {
                     currentUser.getEmail(),
                     selectedGamesString,
                     selectedLocationsString,
-                    base64Image // 👈 burada değişti
+                    base64Image
             );
 
             userRef.updateChildren(updatedUser.toMap()).addOnSuccessListener(unused -> {

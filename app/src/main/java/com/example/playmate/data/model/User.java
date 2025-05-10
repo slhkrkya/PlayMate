@@ -78,7 +78,7 @@ public class User {
         result.put("email", email);
         result.put("favoriteGame", favoriteGame);
         result.put("locations", locations);
-        result.put("profileImageUrl", profileImageUrl); // Yeni alan ekleniyor
+        result.put("profileImageUrl", profileImageUrl);
         return result;
     }
 }

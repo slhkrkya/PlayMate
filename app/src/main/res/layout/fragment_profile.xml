@@ -30,6 +30,7 @@
         android:src="@drawable/ic_defaultprofile"
         android:scaleType="centerCrop"
         android:background="@drawable/circle_background"
+        android:clipToOutline="true"
         android:contentDescription="@string/profile_image_desc"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
