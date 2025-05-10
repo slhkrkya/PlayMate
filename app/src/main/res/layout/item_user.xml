@@ -53,11 +53,10 @@
         <!-- Sağda oyun ikonu -->
         <ImageView
             android:id="@+id/imageViewGameIcon"
-            android:layout_width="94sp"
-            android:layout_height="48sp"
+            android:layout_width="105sp"
+            android:layout_height="65sp"
             android:layout_marginStart="8dp"
             android:contentDescription="@string/game_icon_desc"
-            android:scaleType="centerCrop"
             android:src="@drawable/ic_default_game"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

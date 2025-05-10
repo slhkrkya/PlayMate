@@ -3,5 +3,5 @@
     <!-- Seçili öğe -->
     <item android:color="@color/sky_magenta" android:state_checked="true"/>
     <!-- Diğer öğeler -->
-    <item android:color="@color/wisteria"   android:state_checked="false"/>
+    <item android:color="@color/dark_purple"   android:state_checked="false"/>
 </selector>

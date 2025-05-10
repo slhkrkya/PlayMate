@@ -6,15 +6,16 @@
             android:id="@+id/homeFragment"
             android:title="Ana Sayfa"
             android:icon="@drawable/ic_home" />
+        <item
+            android:id="@+id/nav_profile"
+            android:title="Profil"
+            android:icon="@drawable/ic_profile" />
         <!-- Arkadaşlar -->
         <item
             android:id="@+id/nav_friends"
             android:title="Arkadaşlarım"
             android:icon="@drawable/ic_friends" />
-        <item
-            android:id="@+id/nav_profile"
-            android:title="Profil"
-            android:icon="@drawable/ic_profile" />
+
         <!-- Çıkış -->
         <item
             android:id="@+id/nav_logout"

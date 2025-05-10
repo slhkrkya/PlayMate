@@ -91,6 +91,20 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             int iconRes = getIconResFor(firstGame);
             binding.imageViewGameIcon.setImageResource(iconRes);
 
+            // Load profile image from Base64
+            String base64 = user.getProfileImageUrl();
+            if (base64 != null && !base64.trim().isEmpty()) {
+                try {
+                    byte[] decodedBytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT);
+                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                    binding.imageViewProfile.setImageBitmap(bitmap);
+                } catch (Exception e) {
+                    binding.imageViewProfile.setImageResource(R.drawable.ic_defaultprofile);
+                }
+            } else {
+                binding.imageViewProfile.setImageResource(R.drawable.ic_defaultprofile);
+            }
+
             // Handle click
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
