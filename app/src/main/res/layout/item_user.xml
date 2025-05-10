@@ -2,6 +2,7 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
@@ -18,15 +19,14 @@
         android:gravity="center_vertical"
         android:background="@drawable/box_bg">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/imageViewProfile"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_marginEnd="12dp"
-            android:scaleType="centerCrop"
             android:src="@drawable/ic_defaultprofile"
-            android:background="@drawable/circle_background"
-            android:clipToOutline="true" />
+            app:shapeAppearanceOverlay="@style/CircleImageView"
+            android:scaleType="centerCrop" />
         <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"

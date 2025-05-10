@@ -13,15 +13,13 @@
         android:padding="16dp"
         android:background="@drawable/box_bg">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/imageViewProfile"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/ic_defaultprofile"
+            app:shapeAppearanceOverlay="@style/CircleImageView"
             android:scaleType="centerCrop"
-            android:background="@drawable/circle_background"
-            android:clipToOutline="true"
-            android:outlineProvider="background"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>

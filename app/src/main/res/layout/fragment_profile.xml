@@ -23,14 +23,13 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Profil Resmi -->
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageViewProfile"
         android:layout_width="120sp"
         android:layout_height="120sp"
         android:src="@drawable/ic_defaultprofile"
+        app:shapeAppearanceOverlay="@style/CircleImageView"
         android:scaleType="centerCrop"
-        android:background="@drawable/circle_background"
-        android:clipToOutline="true"
         android:contentDescription="@string/profile_image_desc"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
