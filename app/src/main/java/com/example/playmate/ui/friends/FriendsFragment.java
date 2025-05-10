@@ -1,5 +1,6 @@
 package com.example.playmate.ui.friends;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,19 +38,23 @@ public class FriendsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentFriendsBinding.inflate(inflater, container, false);
 
-        // Get current user ID
         currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        // Initialize Firebase reference
         usersRef = FirebaseDatabase.getInstance().getReference("users");
 
-        // Setup RecyclerView
         friendsList = new ArrayList<>();
-        adapter = new FriendsAdapter(friendsList);
+        adapter = new FriendsAdapter(friendsList, friend -> {
+            // Arkadaşı silmeden önce kullanıcıya sor
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Arkadaşı Sil")
+                    .setMessage(friend.getUsername() + " adlı kişiyi silmek istiyor musunuz?")
+                    .setPositiveButton("Evet", (dialog, which) -> removeFriend(friend.getUid()))
+                    .setNegativeButton("İptal", null)
+                    .show();
+        });
+
         binding.recyclerViewFriends.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerViewFriends.setAdapter(adapter);
 
-        // Load friends
         loadFriends();
 
         return binding.getRoot();
@@ -57,42 +62,34 @@ public class FriendsFragment extends Fragment {
 
     private void loadFriends() {
         Log.d(TAG, "Loading friends for user: " + currentUserId);
-        
-        // First, get the current user's data to access their friends list
+
         usersRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User currentUser = snapshot.getValue(User.class);
                 if (currentUser != null) {
-                    // Get the friends node
                     DataSnapshot friendsSnapshot = snapshot.child("friends");
                     if (friendsSnapshot.exists()) {
                         friendsList.clear();
                         int totalFriends = (int) friendsSnapshot.getChildrenCount();
                         AtomicInteger loadedFriends = new AtomicInteger(0);
-                        
-                        Log.d(TAG, "Found " + totalFriends + " friends");
-                        
+
                         for (DataSnapshot friendSnap : friendsSnapshot.getChildren()) {
                             String friendId = friendSnap.getKey();
                             if (friendId != null) {
-                                // Get friend's user data
                                 usersRef.child(friendId).get().addOnSuccessListener(dataSnapshot -> {
                                     User friend = dataSnapshot.getValue(User.class);
                                     if (friend != null) {
                                         friendsList.add(friend);
-                                        int currentLoaded = loadedFriends.incrementAndGet();
-                                        Log.d(TAG, "Loaded friend: " + friend.getUsername());
-                                        
-                                        if (currentLoaded == totalFriends) {
-                                            adapter.notifyDataSetChanged();
-                                            updateEmptyState();
-                                        }
+                                    }
+
+                                    if (loadedFriends.incrementAndGet() == totalFriends) {
+                                        adapter.notifyDataSetChanged();
+                                        updateEmptyState();
                                     }
                                 }).addOnFailureListener(e -> {
-                                    Log.e(TAG, "Error loading friend data: " + e.getMessage());
-                                    int currentLoaded = loadedFriends.incrementAndGet();
-                                    if (currentLoaded == totalFriends) {
+                                    Log.e(TAG, "Error loading friend: " + e.getMessage());
+                                    if (loadedFriends.incrementAndGet() == totalFriends) {
                                         adapter.notifyDataSetChanged();
                                         updateEmptyState();
                                     }
@@ -100,7 +97,6 @@ public class FriendsFragment extends Fragment {
                             }
                         }
                     } else {
-                        Log.d(TAG, "No friends found");
                         updateEmptyState();
                     }
                 }
@@ -112,6 +108,18 @@ public class FriendsFragment extends Fragment {
                 Toast.makeText(getContext(), "Arkadaşlar yüklenirken hata oluştu", Toast.LENGTH_SHORT).show();
                 updateEmptyState();
             }
+        });
+    }
+
+    private void removeFriend(String friendId) {
+        DatabaseReference currentUserRef = usersRef.child(currentUserId).child("friends").child(friendId);
+        DatabaseReference friendUserRef = usersRef.child(friendId).child("friends").child(currentUserId);
+
+        currentUserRef.removeValue().addOnSuccessListener(unused -> {
+            friendUserRef.removeValue().addOnSuccessListener(unused2 -> {
+                Toast.makeText(getContext(), "Arkadaş silindi", Toast.LENGTH_SHORT).show();
+                loadFriends(); // Listeyi yenile
+            });
         });
     }
 
@@ -130,4 +138,4 @@ public class FriendsFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-} 
+}

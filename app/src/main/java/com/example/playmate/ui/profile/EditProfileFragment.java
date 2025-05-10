@@ -23,15 +23,11 @@ import com.example.playmate.R;
 import com.example.playmate.data.model.User;
 import com.example.playmate.databinding.FragmentEditProfileBinding;
 import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import androidx.core.content.ContextCompat;
-import android.content.res.ColorStateList;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class EditProfileFragment extends Fragment {
@@ -40,7 +36,9 @@ public class EditProfileFragment extends Fragment {
     private Uri selectedImageUri;
     private List<String> selectedGames = new ArrayList<>();
     private List<String> selectedLocations = new ArrayList<>();
+
     private static final String[] GAMES = {
+            "Favori oyun seçin...",
             "League of Legends",
             "Valorant",
             "Counter Strike",
@@ -51,6 +49,7 @@ public class EditProfileFragment extends Fragment {
     };
 
     private static final String[] LOCATIONS = {
+            "Konum seçin...",
             "Türkiye",
             "EU",
             "NA"
@@ -62,7 +61,6 @@ public class EditProfileFragment extends Fragment {
                     selectedImageUri = result.getData().getData();
                     binding.imageViewProfileEdit.setImageURI(selectedImageUri);
 
-                    // URI'yi SharedPreferences'e kaydet
                     SharedPreferences prefs = requireActivity().getSharedPreferences("profile_prefs", 0);
                     prefs.edit().putString("profile_image_uri", selectedImageUri.toString()).apply();
                 }
@@ -72,7 +70,6 @@ public class EditProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentEditProfileBinding.inflate(inflater, container, false);
 
-        // Initialize Spinner for games
         ArrayAdapter<String> gamesAdapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_spinner_item,
@@ -81,7 +78,6 @@ public class EditProfileFragment extends Fragment {
         gamesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerFavoriteGames.setAdapter(gamesAdapter);
 
-        // Initialize Spinner for locations
         ArrayAdapter<String> locationsAdapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_spinner_item,
@@ -90,47 +86,44 @@ public class EditProfileFragment extends Fragment {
         locationsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerLocation.setAdapter(locationsAdapter);
 
-        // Handle game selection
         binding.spinnerFavoriteGames.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) return;
+
                 String selectedGame = GAMES[position];
                 if (!selectedGames.contains(selectedGame)) {
                     selectedGames.add(selectedGame);
                     addGameChip(selectedGame);
                     updateSpinnerTitle();
                 }
+                binding.spinnerFavoriteGames.setSelection(0); // geri sıfırla
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        // Handle location selection
         binding.spinnerLocation.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) return;
+
                 String selectedLocation = LOCATIONS[position];
                 if (!selectedLocations.contains(selectedLocation)) {
                     selectedLocations.add(selectedLocation);
                     addLocationChip(selectedLocation);
                     updateLocationSpinnerTitle();
                 }
+                binding.spinnerLocation.setSelection(0); // geri sıfırla
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        // Profil Resmi Seçme
         binding.buttonChangeImage.setOnClickListener(v -> openImagePicker());
-
-        // Profil Kaydetme
         binding.buttonSaveProfile.setOnClickListener(v -> saveProfile());
-
-        // Load existing data
         loadExistingData();
 
         return binding.getRoot();
@@ -139,11 +132,10 @@ public class EditProfileFragment extends Fragment {
     private void loadExistingData() {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(uid);
-        
+
         userRef.get().addOnSuccessListener(snapshot -> {
             User currentUser = snapshot.getValue(User.class);
             if (currentUser != null) {
-                // Load games
                 if (currentUser.getFavoriteGame() != null) {
                     String[] existingGames = currentUser.getFavoriteGame().split(",");
                     for (String game : existingGames) {
@@ -155,7 +147,6 @@ public class EditProfileFragment extends Fragment {
                     updateSpinnerTitle();
                 }
 
-                // Load locations
                 if (currentUser.getLocations() != null) {
                     String[] existingLocations = currentUser.getLocations().split(",");
                     for (String location : existingLocations) {
@@ -227,19 +218,15 @@ public class EditProfileFragment extends Fragment {
                 return;
             }
 
-            // SharedPreferences'ten image URI'yi al
             SharedPreferences prefs = requireActivity().getSharedPreferences("profile_prefs", 0);
             String imageUri = prefs.getString("profile_image_uri", currentUser.getProfileImageUrl());
 
-            // EditText'lerden veri al (boş değilse güncelle)
             String newUsername = binding.editTextUsername.getText().toString().trim();
             String finalUsername = newUsername.isEmpty() ? currentUser.getUsername() : newUsername;
 
-            // Seçili oyunları ve konumları virgülle ayırarak birleştir
             String selectedGamesString = String.join(",", selectedGames);
             String selectedLocationsString = String.join(",", selectedLocations);
 
-            // Yeni kullanıcı nesnesi
             User updatedUser = new User(
                     currentUser.getUid(),
                     finalUsername,

@@ -14,9 +14,15 @@ import java.util.List;
 public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendViewHolder> {
 
     private final List<User> friendsList;
+    private final OnFriendActionListener listener;
 
-    public FriendsAdapter(List<User> friendsList) {
+    public interface OnFriendActionListener {
+        void onRemoveFriend(User friend);
+    }
+
+    public FriendsAdapter(List<User> friendsList, OnFriendActionListener listener) {
         this.friendsList = friendsList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -33,7 +39,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendVi
     @Override
     public void onBindViewHolder(@NonNull FriendViewHolder holder, int position) {
         User friend = friendsList.get(position);
-        holder.bind(friend);
+        holder.bind(friend, listener);
     }
 
     @Override
@@ -49,10 +55,12 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendVi
             this.binding = binding;
         }
 
-        void bind(User friend) {
+        void bind(User friend, OnFriendActionListener listener) {
             binding.textViewUsername.setText(friend.getUsername());
             binding.textViewFavoriteGame.setText(friend.getFavoriteGame());
-            // TODO: Load profile image if available
+
+            // Silme butonu dinleyicisi
+            binding.buttonRemoveFriend.setOnClickListener(v -> listener.onRemoveFriend(friend));
         }
     }
-} 
+}
