@@ -20,6 +20,8 @@
             android:src="@drawable/ic_defaultprofile"
             android:scaleType="centerCrop"
             android:background="@drawable/circle_background"
+            android:clipToOutline="true"
+            android:outlineProvider="background"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>

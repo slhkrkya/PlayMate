@@ -3,13 +3,14 @@ package com.example.playmate.ui.profile;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -27,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +56,19 @@ public class EditProfileFragment extends Fragment {
             "EU",
             "NA"
     };
-
+    private String encodeImageToBase64(Uri imageUri) {
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
+            Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 200, 200, true); // boyutu küçült
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            scaled.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            byte[] imageBytes = baos.toByteArray();
+            return android.util.Base64.encodeToString(imageBytes, android.util.Base64.DEFAULT);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     private final ActivityResultLauncher<Intent> imagePickerLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
@@ -218,8 +232,13 @@ public class EditProfileFragment extends Fragment {
                 return;
             }
 
-            SharedPreferences prefs = requireActivity().getSharedPreferences("profile_prefs", 0);
-            String imageUri = prefs.getString("profile_image_uri", currentUser.getProfileImageUrl());
+            // PROFİL FOTOĞRAFINI BASE64 FORMATINA ÇEVİR
+            String base64Image;
+            if (selectedImageUri != null) {
+                base64Image = encodeImageToBase64(selectedImageUri);
+            } else {
+                base64Image = currentUser.getProfileImageUrl(); // önceki veri
+            }
 
             String newUsername = binding.editTextUsername.getText().toString().trim();
             String finalUsername = newUsername.isEmpty() ? currentUser.getUsername() : newUsername;
@@ -233,7 +252,7 @@ public class EditProfileFragment extends Fragment {
                     currentUser.getEmail(),
                     selectedGamesString,
                     selectedLocationsString,
-                    imageUri
+                    base64Image // 👈 burada değişti
             );
 
             userRef.updateChildren(updatedUser.toMap()).addOnSuccessListener(unused -> {
@@ -248,4 +267,5 @@ public class EditProfileFragment extends Fragment {
             Toast.makeText(getContext(), "Veri alınamadı: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
     }
+
 }

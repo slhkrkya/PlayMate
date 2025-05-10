@@ -1,11 +1,14 @@
 package com.example.playmate.ui.friends;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.playmate.R;
 import com.example.playmate.data.model.User;
 import com.example.playmate.databinding.ItemFriendBinding;
 
@@ -59,8 +62,25 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendVi
             binding.textViewUsername.setText(friend.getUsername());
             binding.textViewFavoriteGame.setText(friend.getFavoriteGame());
 
-            // Silme butonu dinleyicisi
+            // Profil resmi decode et
+            String base64 = friend.getProfileImageUrl();
+            if (base64 != null && !base64.isEmpty()) {
+                try {
+                    byte[] decodedBytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT);
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                    binding.imageViewProfile.setImageBitmap(bitmap);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // hata varsa varsayılan ikon göster
+                    binding.imageViewProfile.setImageResource(R.drawable.ic_defaultprofile);
+                }
+            } else {
+                binding.imageViewProfile.setImageResource(R.drawable.ic_defaultprofile);
+            }
+
+            // Silme işlemi
             binding.buttonRemoveFriend.setOnClickListener(v -> listener.onRemoveFriend(friend));
         }
+
     }
 }
