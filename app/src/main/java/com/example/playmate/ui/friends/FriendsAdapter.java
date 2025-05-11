@@ -18,15 +18,25 @@ import java.util.List;
 public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendViewHolder> {
 
     private final List<User> friendsList;
-    private final OnFriendActionListener listener;
+    private final OnFriendActionListener removeListener;
+    private final OnChatClickListener chatListener;
 
+    // Arkadaş silme ve sohbet başlatma listener'ları
     public interface OnFriendActionListener {
         void onRemoveFriend(User friend);
     }
 
-    public FriendsAdapter(List<User> friendsList, OnFriendActionListener listener) {
+    public interface OnChatClickListener {
+        void onChatClick(User friend);
+    }
+
+    // Constructor
+    public FriendsAdapter(List<User> friendsList,
+                          OnFriendActionListener removeListener,
+                          OnChatClickListener chatListener) {
         this.friendsList = friendsList;
-        this.listener = listener;
+        this.removeListener = removeListener;
+        this.chatListener = chatListener;
     }
 
     @NonNull
@@ -43,7 +53,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendVi
     @Override
     public void onBindViewHolder(@NonNull FriendViewHolder holder, int position) {
         User friend = friendsList.get(position);
-        holder.bind(friend, listener);
+        holder.bind(friend, removeListener, chatListener);
     }
 
     @Override
@@ -59,7 +69,10 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendVi
             this.binding = binding;
         }
 
-        void bind(User friend, OnFriendActionListener listener) {
+        void bind(User friend,
+                  OnFriendActionListener removeListener,
+                  OnChatClickListener chatListener) {
+
             binding.textViewUsername.setText(friend.getUsername());
             binding.textViewFavoriteGame.setText(friend.getFavoriteGame());
 
@@ -77,8 +90,15 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendVi
                 binding.imageViewProfile.setImageResource(R.drawable.ic_defaultprofile);
             }
 
-            // Silme butonu
-            binding.buttonRemoveFriend.setOnClickListener(v -> listener.onRemoveFriend(friend));
+            // Arkadaşı silme işlemi
+            binding.buttonRemoveFriend.setOnClickListener(v -> removeListener.onRemoveFriend(friend));
+
+            // Sohbet başlatma işlemi (Mesaj butonuyla)
+            binding.buttonChatFriend.setOnClickListener(v -> {
+                if (chatListener != null) {
+                    chatListener.onChatClick(friend);
+                }
+            });
         }
     }
 }

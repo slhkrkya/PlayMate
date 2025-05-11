@@ -38,6 +38,8 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
     private String currentUserId;
     private ValueEventListener usersListener;
     private ValueEventListener friendRequestsListener;
+    private DatabaseReference messagesRef;
+    private ValueEventListener messagesListener;
 
     private static final String[] GAMES = {
             "Tümünü Göster",
@@ -203,7 +205,7 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
             }
         }
         adapter.notifyDataSetChanged();
-        
+
         if (filteredUserList.isEmpty()) {
             Context context = getContext();
             if (context != null) {

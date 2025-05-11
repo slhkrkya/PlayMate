@@ -10,8 +10,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.playmate.R;
 import com.example.playmate.data.model.User;
 import com.example.playmate.databinding.FragmentFriendsBinding;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,15 +44,27 @@ public class FriendsFragment extends Fragment {
         usersRef = FirebaseDatabase.getInstance().getReference("users");
 
         friendsList = new ArrayList<>();
-        adapter = new FriendsAdapter(friendsList, friend -> {
-            // Arkadaşı silmeden önce kullanıcıya sor
-            new AlertDialog.Builder(requireContext())
-                    .setTitle("Arkadaşı Sil")
-                    .setMessage(friend.getUsername() + " adlı kişiyi silmek istiyor musunuz?")
-                    .setPositiveButton("Evet", (dialog, which) -> removeFriend(friend.getUid()))
-                    .setNegativeButton("İptal", null)
-                    .show();
-        });
+
+        adapter = new FriendsAdapter(
+                friendsList,
+                friend -> {
+                    // Arkadaşı silmeden önce kullanıcıya sor
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle("Arkadaşı Sil")
+                            .setMessage(friend.getUsername() + " adlı kişiyi silmek istiyor musunuz?")
+                            .setPositiveButton("Evet", (dialog, which) -> removeFriend(friend.getUid()))
+                            .setNegativeButton("İptal", null)
+                            .show();
+                },
+                friend -> {
+                    // Navigation Component ile sohbet başlat (args ile receiverId gönder)
+                    Bundle bundle = new Bundle();
+                    bundle.putString("receiverId", friend.getUid());
+
+                    NavHostFragment.findNavController(FriendsFragment.this)
+                            .navigate(R.id.chatFragment, bundle);
+                }
+        );
 
         binding.recyclerViewFriends.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerViewFriends.setAdapter(adapter);
