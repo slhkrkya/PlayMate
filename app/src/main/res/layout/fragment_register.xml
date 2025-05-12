@@ -8,7 +8,7 @@
 
     <EditText
         android:id="@+id/editTextEmail"
-        android:layout_width="0dp"
+        android:layout_width="350sp"
         android:layout_height="wrap_content"
         android:hint="Email"
         android:inputType="textEmailAddress"
@@ -19,7 +19,7 @@
 
     <EditText
         android:id="@+id/editTextPassword"
-        android:layout_width="0dp"
+        android:layout_width="350sp"
         android:layout_height="wrap_content"
         android:hint="Şifre"
         android:inputType="textPassword"
@@ -30,7 +30,7 @@
 
     <EditText
         android:id="@+id/editTextPasswordConfirm"
-        android:layout_width="0dp"
+        android:layout_width="350sp"
         android:layout_height="wrap_content"
         android:hint="Şifreyi Tekrar Giriniz"
         android:inputType="textPassword"
@@ -41,7 +41,7 @@
 
     <Button
         android:id="@+id/buttonRegister"
-        android:layout_width="0dp"
+        android:layout_width="350sp"
         android:layout_height="wrap_content"
         android:text="Kayıt Ol"
         android:layout_marginTop="16sp"
