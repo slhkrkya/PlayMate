@@ -16,6 +16,11 @@
             android:id="@+id/friendRequestsFragment"
             android:title="Arkadaşlık İstekleri"
             android:icon="@drawable/ic_friend_request" />
+        <!-- Mesajlar -->
+        <item
+            android:id="@+id/messagesFragment"
+            android:title="Mesajlar"
+            android:icon="@drawable/ic_chat" />
         <!-- Profil -->
         <item
             android:id="@+id/nav_profile"

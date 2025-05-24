@@ -78,6 +78,22 @@
             app:destination="@id/chatFragment" />
     </fragment>
 
+    <!-- Friend Requests Fragment -->
+    <fragment
+        android:id="@+id/friendRequestsFragment"
+        android:name="com.example.playmate.ui.friends.FriendRequestsFragment"
+        android:label="Arkadaşlık İstekleri" />
+
+    <!-- Messages Fragment -->
+    <fragment
+        android:id="@+id/messagesFragment"
+        android:name="com.example.playmate.ui.messages.MessagesFragment"
+        android:label="Mesajlar">
+        <action
+            android:id="@+id/action_messagesFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
+
     <!-- Chat Fragment -->
     <fragment
         android:id="@+id/chatFragment"
@@ -91,11 +107,5 @@
             android:name="receiverId"
             app:argType="string" />
     </fragment>
-
-    <!-- Friend Requests Fragment -->
-    <fragment
-        android:id="@+id/friendRequestsFragment"
-        android:name="com.example.playmate.ui.friends.FriendRequestsFragment"
-        android:label="Arkadaşlık İstekleri" />
 
 </navigation>
