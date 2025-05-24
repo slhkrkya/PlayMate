@@ -6,6 +6,8 @@ public class ChatMessage {
     private String receiverId;
     private String message;
     private long timestamp;
+    private boolean isRead; // Okundu bilgisi
+    private String chatRoomId; // Chat odası ID'si
 
     public ChatMessage() {
         // Boş constructor Firebase için gerekli
@@ -17,6 +19,13 @@ public class ChatMessage {
         this.receiverId = receiverId;
         this.message = message;
         this.timestamp = timestamp;
+        this.isRead = false; // Yeni mesajlar başlangıçta okunmamış kabul edilir
+        this.chatRoomId = generateChatRoomId(senderId, receiverId);
+    }
+
+    // Chat odası ID'si oluşturma
+    private String generateChatRoomId(String uid1, String uid2) {
+        return (uid1.compareTo(uid2) < 0) ? uid1 + "_" + uid2 : uid2 + "_" + uid1;
     }
 
     // Getter ve Setter'lar
@@ -34,6 +43,10 @@ public class ChatMessage {
 
     public void setSenderId(String senderId) {
         this.senderId = senderId;
+        // SenderId değiştiğinde chatRoomId'yi güncelle
+        if (this.receiverId != null) {
+            this.chatRoomId = generateChatRoomId(senderId, this.receiverId);
+        }
     }
 
     public String getReceiverId() {
@@ -42,6 +55,10 @@ public class ChatMessage {
 
     public void setReceiverId(String receiverId) {
         this.receiverId = receiverId;
+        // ReceiverId değiştiğinde chatRoomId'yi güncelle
+        if (this.senderId != null) {
+            this.chatRoomId = generateChatRoomId(this.senderId, receiverId);
+        }
     }
 
     public String getMessage() {
@@ -58,5 +75,24 @@ public class ChatMessage {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean read) {
+        isRead = read;
+    }
+
+    public String getChatRoomId() {
+        if (chatRoomId == null && senderId != null && receiverId != null) {
+            chatRoomId = generateChatRoomId(senderId, receiverId);
+        }
+        return chatRoomId;
+    }
+
+    public void setChatRoomId(String chatRoomId) {
+        this.chatRoomId = chatRoomId;
     }
 }

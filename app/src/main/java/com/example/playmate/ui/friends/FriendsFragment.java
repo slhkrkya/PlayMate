@@ -75,11 +75,21 @@ public class FriendsFragment extends Fragment {
     }
 
     private void loadFriends() {
+        if (!isAdded() || getContext() == null) {
+            Log.d(TAG, "loadFriends: Fragment not attached");
+            return;
+        }
+
         Log.d(TAG, "Loading friends for user: " + currentUserId);
 
         usersRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded() || getContext() == null) {
+                    Log.d(TAG, "onDataChange: Fragment not attached");
+                    return;
+                }
+
                 User currentUser = snapshot.getValue(User.class);
                 if (currentUser != null) {
                     DataSnapshot friendsSnapshot = snapshot.child("friends");
@@ -92,18 +102,25 @@ public class FriendsFragment extends Fragment {
                             String friendId = friendSnap.getKey();
                             if (friendId != null) {
                                 usersRef.child(friendId).get().addOnSuccessListener(dataSnapshot -> {
+                                    if (!isAdded() || getContext() == null) {
+                                        Log.d(TAG, "onSuccess: Fragment not attached");
+                                        return;
+                                    }
+
                                     User friend = dataSnapshot.getValue(User.class);
                                     if (friend != null) {
                                         friendsList.add(friend);
                                     }
 
                                     if (loadedFriends.incrementAndGet() == totalFriends) {
-                                        adapter.notifyDataSetChanged();
-                                        updateEmptyState();
+                                        if (isAdded() && getContext() != null) {
+                                            adapter.notifyDataSetChanged();
+                                            updateEmptyState();
+                                        }
                                     }
                                 }).addOnFailureListener(e -> {
                                     Log.e(TAG, "Error loading friend: " + e.getMessage());
-                                    if (loadedFriends.incrementAndGet() == totalFriends) {
+                                    if (loadedFriends.incrementAndGet() == totalFriends && isAdded() && getContext() != null) {
                                         adapter.notifyDataSetChanged();
                                         updateEmptyState();
                                     }
@@ -111,33 +128,54 @@ public class FriendsFragment extends Fragment {
                             }
                         }
                     } else {
-                        updateEmptyState();
+                        if (isAdded() && getContext() != null) {
+                            updateEmptyState();
+                        }
                     }
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                if (!isAdded() || getContext() == null) {
+                    Log.d(TAG, "onCancelled: Fragment not attached");
+                    return;
+                }
+
                 Log.e(TAG, "Error loading user data: " + error.getMessage());
-                Toast.makeText(getContext(), "Arkadaşlar yüklenirken hata oluştu", Toast.LENGTH_SHORT).show();
-                updateEmptyState();
+                if (isAdded() && getContext() != null) {
+                    Toast.makeText(requireContext(), "Arkadaşlar yüklenirken hata oluştu", Toast.LENGTH_SHORT).show();
+                    updateEmptyState();
+                }
             }
         });
     }
 
     private void removeFriend(String friendId) {
+        if (!isAdded() || getContext() == null) {
+            Log.d(TAG, "removeFriend: Fragment not attached");
+            return;
+        }
+
         DatabaseReference currentUserRef = usersRef.child(currentUserId).child("friends").child(friendId);
         DatabaseReference friendUserRef = usersRef.child(friendId).child("friends").child(currentUserId);
 
         currentUserRef.removeValue().addOnSuccessListener(unused -> {
             friendUserRef.removeValue().addOnSuccessListener(unused2 -> {
-                Toast.makeText(getContext(), "Arkadaş silindi", Toast.LENGTH_SHORT).show();
-                loadFriends(); // Listeyi yenile
+                if (isAdded() && getContext() != null) {
+                    Toast.makeText(requireContext(), "Arkadaş silindi", Toast.LENGTH_SHORT).show();
+                    loadFriends(); // Listeyi yenile
+                }
             });
         });
     }
 
     private void updateEmptyState() {
+        if (binding == null || !isAdded() || getContext() == null) {
+            Log.d(TAG, "updateEmptyState: Fragment not attached or binding is null");
+            return;
+        }
+
         if (friendsList.isEmpty()) {
             binding.textViewNoFriends.setVisibility(View.VISIBLE);
             binding.recyclerViewFriends.setVisibility(View.GONE);

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,8 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class LoginFragment extends Fragment {
 
@@ -39,98 +42,104 @@ public class LoginFragment extends Fragment {
     private SharedPreferences prefs;
     private GoogleSignInClient mGoogleSignInClient;
     private static final int RC_SIGN_IN = 100;
+    private static final String TAG = "LoginFragment";
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        // ViewBinding ve ViewModel başlatılıyor
+
         binding = FragmentLoginBinding.inflate(inflater, container, false);
         viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
         navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
-        // SharedPreferences başlat ve önceki seçimleri yükle
-        prefs = requireActivity()
-                .getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
-
+        prefs = requireActivity().getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
         boolean rememberMe = prefs.getBoolean("remember_me", false);
         binding.checkBoxRememberMe.setChecked(rememberMe);
 
-        // Kaydedilmiş e-postayı yükle
-        String savedEmail = prefs.getString("user_email", "");
-        if (!savedEmail.isEmpty()) {
-            binding.editTextEmail.setText(savedEmail);
-        }
+        binding.editTextEmail.setText(prefs.getString("user_email", ""));
+        binding.editTextPassword.setText(prefs.getString("user_password", ""));
 
-        // Kaydedilmiş şifreyi yükle
-        String savedPass = prefs.getString("user_password", "");
-        if (!savedPass.isEmpty()) {
-            binding.editTextPassword.setText(savedPass);
-        }
-
-        // Normal e-posta/şifre girişi için buton
         binding.buttonLogin.setOnClickListener(v -> {
             String email = binding.editTextEmail.getText().toString().trim();
             String password = binding.editTextPassword.getText().toString().trim();
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(getContext(), "Boş alan bırakmayın!", Toast.LENGTH_SHORT).show();
+                showToast("Boş alan bırakmayın!");
                 return;
             }
 
             viewModel.login(email, password)
                     .addOnSuccessListener(authResult -> {
-                        Toast.makeText(getContext(), "Giriş başarılı!", Toast.LENGTH_SHORT).show();
+                        showToast("Giriş başarılı!");
 
-                        // Seçimi SharedPreferences'e kaydet
+                        // "Beni Hatırla" seçimini kaydet
                         boolean remember = binding.checkBoxRememberMe.isChecked();
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putBoolean("remember_me", remember);
                         if (remember) {
                             editor.putString("user_email", email);
-                            editor.putString("user_password",password);
+                            editor.putString("user_password", password);
                         } else {
                             editor.remove("user_email");
                             editor.remove("user_password");
                         }
                         editor.apply();
 
-                        // Backstack temizlenerek ana sayfaya yönlendir
+                        // ✅ FCM token al ve Realtime DB'ye kaydet
+                        FirebaseMessaging.getInstance().getToken()
+                                .addOnCompleteListener(task -> {
+                                    if (!task.isSuccessful()) {
+                                        Log.w("FCM_TOKEN", "Token alınamadı", task.getException());
+                                        return;
+                                    }
+
+                                    String token = task.getResult();
+                                    Log.d("FCM_TOKEN", "Token: " + token);
+
+                                    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                                    if (currentUser != null) {
+                                        FirebaseDatabase.getInstance().getReference("tokens")
+                                                .child(currentUser.getUid())
+                                                .setValue(token);
+                                    }
+                                });
+
+                        // Ana sayfaya yönlendir
                         NavOptions navOptions = new NavOptions.Builder()
                                 .setPopUpTo(R.id.loginFragment, true)
                                 .build();
                         navController.navigate(R.id.action_loginFragment_to_homeFragment, null, navOptions);
                     })
-                    .addOnFailureListener(e -> new AlertDialog.Builder(getContext())
-                            .setTitle("Hata")
-                            .setMessage("Giriş başarısız: " + e.getMessage())
-                            .setPositiveButton("Tamam", null)
-                            .show()
-                    );
+                    .addOnFailureListener(e -> {
+                        if (isAdded() && getContext() != null) {
+                            new AlertDialog.Builder(requireContext())
+                                    .setTitle("Hata")
+                                    .setMessage("Giriş başarısız: " + e.getMessage())
+                                    .setPositiveButton("Tamam", null)
+                                    .show();
+                        }
+                    });
         });
 
-        // Kayıt ekranına geçiş
         binding.textViewGoToRegister.setOnClickListener(v ->
-                navController.navigate(R.id.action_loginFragment_to_registerFragment)
-        );
+                navController.navigate(R.id.action_loginFragment_to_registerFragment));
 
-        // Google Sign-In butonları
-        binding.imageButtonGoogleSignIn.setOnClickListener(v -> signInWithGoogle());
-        binding.textViewGoToGoogle.setOnClickListener(v -> signInWithGoogle());
-
-        // Google Sign-In yapılandırması
+        // Google Sign-In ayarları
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
 
+        binding.imageButtonGoogleSignIn.setOnClickListener(v -> signInWithGoogle());
+        binding.textViewGoToGoogle.setOnClickListener(v -> signInWithGoogle());
+
         return binding.getRoot();
     }
 
     private void signInWithGoogle() {
-        // Önceki oturumu kapatıp yeni seçim ekranını aç
         mGoogleSignInClient.signOut().addOnCompleteListener(requireActivity(), task -> {
             Intent signInIntent = mGoogleSignInClient.getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -146,20 +155,29 @@ public class LoginFragment extends Fragment {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
-                Toast.makeText(getContext(), "Google Giriş Hatası", Toast.LENGTH_SHORT).show();
+                showToast("Google Giriş Hatası");
             }
         }
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        if (!isAdded() || getContext() == null) {
+            Log.d(TAG, "firebaseAuthWithGoogle: Fragment not attached");
+            return;
+        }
+
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         FirebaseAuth.getInstance().signInWithCredential(credential)
                 .addOnCompleteListener(requireActivity(), task -> {
+                    if (!isAdded() || getContext() == null) {
+                        Log.d(TAG, "onComplete: Fragment not attached");
+                        return;
+                    }
+
                     if (task.isSuccessful()) {
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        Toast.makeText(getContext(), "Google ile giriş başarılı!", Toast.LENGTH_SHORT).show();
+                        showToast("Google ile giriş başarılı!");
 
-                        // Seçimi SharedPreferences'e kaydet
                         boolean remember = binding.checkBoxRememberMe.isChecked();
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putBoolean("remember_me", remember);
@@ -176,14 +194,28 @@ public class LoginFragment extends Fragment {
                         }
                         editor.apply();
 
-                        // Backstack temizlenerek ana sayfaya yönlendir
-                        NavOptions navOptions = new NavOptions.Builder()
-                                .setPopUpTo(R.id.loginFragment, true)
-                                .build();
-                        navController.navigate(R.id.action_loginFragment_to_homeFragment, null, navOptions);
+                        // Check current destination before navigating
+                        if (navController.getCurrentDestination() != null) {
+                            int currentDestination = navController.getCurrentDestination().getId();
+                            if (currentDestination == R.id.loginFragment) {
+                                // Only navigate if we're on the login fragment
+                                NavOptions navOptions = new NavOptions.Builder()
+                                        .setPopUpTo(R.id.loginFragment, true)
+                                        .build();
+                                navController.navigate(R.id.action_loginFragment_to_homeFragment, null, navOptions);
+                            } else {
+                                Log.d(TAG, "Navigation skipped - already on destination: " + currentDestination);
+                            }
+                        }
                     } else {
-                        Toast.makeText(getContext(), "Google Girişi Başarısız!", Toast.LENGTH_SHORT).show();
+                        showToast("Google Girişi Başarısız!");
                     }
                 });
+    }
+
+    private void showToast(String message) {
+        if (isAdded() && getContext() != null) {
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+        }
     }
 }

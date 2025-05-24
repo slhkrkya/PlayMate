@@ -18,6 +18,7 @@ import com.example.playmate.data.model.User;
 import com.example.playmate.data.model.FriendRequest;
 import com.example.playmate.databinding.FragmentHomeBinding;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
 
 import java.util.ArrayList;
@@ -57,7 +58,14 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
         // Giriş yapan kullanıcının UID'sini al
-        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.d(TAG, "Kullanıcı oturum açmamış, HomeFragment dinleyicileri başlatılmıyor.");
+            return binding.getRoot();
+        }
+
+        currentUserId = currentUser.getUid();
+        Log.d(TAG, "HomeFragment başlatılıyor. Kullanıcı ID: " + currentUserId);
 
         // Firebase referanslarını al
         usersRef = FirebaseDatabase.getInstance().getReference("users");
@@ -215,6 +223,11 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
     }
 
     private void getUsersFromFirebase() {
+        if (currentUserId == null) {
+            Log.d(TAG, "Kullanıcı oturum açmamış, kullanıcı listesi yüklenmiyor.");
+            return;
+        }
+
         usersListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -242,6 +255,11 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
     }
 
     private void listenForFriendRequests() {
+        if (currentUserId == null) {
+            Log.d(TAG, "Kullanıcı oturum açmamış, arkadaşlık istekleri dinlenmiyor.");
+            return;
+        }
+
         Log.d(TAG, "Starting to listen for friend requests for user: " + currentUserId);
 
         friendRequestsListener = new ValueEventListener() {
@@ -299,11 +317,16 @@ public class HomeFragment extends Fragment implements UserDetailsDialog.OnUserAc
     public void onDestroyView() {
         super.onDestroyView();
         // Remove Firebase listeners
-        if (usersListener != null) {
-            usersRef.removeEventListener(usersListener);
-        }
-        if (friendRequestsListener != null) {
-            friendRequestsRef.removeEventListener(friendRequestsListener);
+        if (currentUserId != null) { // Sadece kullanıcı oturum açmışsa dinleyicileri temizle
+            Log.d(TAG, "HomeFragment dinleyicileri temizleniyor. Kullanıcı ID: " + currentUserId);
+            if (usersListener != null) {
+                usersRef.removeEventListener(usersListener);
+                usersListener = null;
+            }
+            if (friendRequestsListener != null) {
+                friendRequestsRef.removeEventListener(friendRequestsListener);
+                friendRequestsListener = null;
+            }
         }
         binding = null;
     }
