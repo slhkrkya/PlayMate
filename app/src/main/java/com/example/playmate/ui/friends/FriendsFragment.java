@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.playmate.R;
 import com.example.playmate.data.model.User;
+import com.example.playmate.data.model.FriendRequest;
 import com.example.playmate.databinding.FragmentFriendsBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -162,11 +163,71 @@ public class FriendsFragment extends Fragment {
 
         currentUserRef.removeValue().addOnSuccessListener(unused -> {
             friendUserRef.removeValue().addOnSuccessListener(unused2 -> {
+                // İlgili arkadaşlık isteği kayıtlarını sil
+                removeFriendRequestRecords(currentUserId, friendId);
+
                 if (isAdded() && getContext() != null) {
                     Toast.makeText(requireContext(), "Arkadaş silindi", Toast.LENGTH_SHORT).show();
                     loadFriends(); // Listeyi yenile
                 }
+            }).addOnFailureListener(e -> {
+                if (isAdded() && getContext() != null) {
+                    Toast.makeText(requireContext(), "Arkadaş silinirken hata oluştu: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             });
+        }).addOnFailureListener(e -> {
+            if (isAdded() && getContext() != null) {
+                Toast.makeText(requireContext(), "Arkadaş silinirken hata oluştu: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void removeFriendRequestRecords(String userId1, String userId2) {
+        Log.d(TAG, "Arkadaşlık isteği kayıtları siliniyor: " + userId1 + " ve " + userId2);
+        DatabaseReference friendRequestsRef = FirebaseDatabase.getInstance().getReference("friendRequests");
+
+        // userId1'den userId2'ye gönderilen istekleri bul ve sil
+        friendRequestsRef.orderByChild("senderId").equalTo(userId1).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    FriendRequest request = dataSnapshot.getValue(FriendRequest.class);
+                    if (request != null && request.getReceiverId().equals(userId2)) {
+                        dataSnapshot.getRef().removeValue().addOnSuccessListener(unused -> {
+                            Log.d(TAG, "Gönderilen arkadaşlık isteği silindi: " + request.getRequestId());
+                        }).addOnFailureListener(e -> {
+                            Log.e(TAG, "Gönderilen arkadaşlık isteği silinirken hata: " + e.getMessage());
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Gönderilen arkadaşlık istekleri sorgulanırken hata: " + error.getMessage());
+            }
+        });
+
+        // userId2'den userId1'e gönderilen istekleri bul ve sil
+        friendRequestsRef.orderByChild("senderId").equalTo(userId2).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    FriendRequest request = dataSnapshot.getValue(FriendRequest.class);
+                    if (request != null && request.getReceiverId().equals(userId1)) {
+                        dataSnapshot.getRef().removeValue().addOnSuccessListener(unused -> {
+                            Log.d(TAG, "Alınan arkadaşlık isteği silindi: " + request.getRequestId());
+                        }).addOnFailureListener(e -> {
+                            Log.e(TAG, "Alınan arkadaşlık isteği silinirken hata: " + e.getMessage());
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Alınan arkadaşlık istekleri sorgulanırken hata: " + error.getMessage());
+            }
         });
     }
 

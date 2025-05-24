@@ -6,21 +6,28 @@
             android:id="@+id/homeFragment"
             android:title="Ana Sayfa"
             android:icon="@drawable/ic_home" />
+        <!-- Arkadaşlar -->
+        <item
+            android:id="@+id/nav_friends"
+            android:title="Arkadaşlar"
+            android:icon="@drawable/ic_friends" />
+        <!-- Arkadaşlık İstekleri -->
+        <item
+            android:id="@+id/friendRequestsFragment"
+            android:title="Arkadaşlık İstekleri"
+            android:icon="@drawable/ic_friend_request" />
+        <!-- Profil -->
         <item
             android:id="@+id/nav_profile"
             android:title="Profil"
             android:icon="@drawable/ic_profile" />
-        <!-- Arkadaşlar -->
-        <item
-            android:id="@+id/nav_friends"
-            android:title="Arkadaşlarım"
-            android:icon="@drawable/ic_friends" />
-
-        <!-- Çıkış -->
-        <item
-            android:id="@+id/nav_logout"
-            android:title="Çıkış Yap"
-            android:icon="@drawable/ic_logout" />
     </group>
-
+    <item android:title="Diğer">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:title="Çıkış Yap"
+                android:icon="@drawable/ic_logout" />
+        </menu>
+    </item>
 </menu>

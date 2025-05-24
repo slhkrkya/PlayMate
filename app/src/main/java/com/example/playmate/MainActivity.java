@@ -183,11 +183,17 @@ public class MainActivity extends AppCompatActivity {
         } else {
             // Kullanıcı giriş yapmışsa ve bildirimden geliyorsa chat ekranına yönlendir
              handleNotificationNavigation(getIntent());
+             // Kullanıcı giriş yaptıysa navigation header'ı güncelle
+             updateNavigationHeader();
         }
 
         // AppBar ve NavigationDrawer'ı kontrolcüye bağla
         appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.homeFragment, R.id.nav_profile, R.id.editProfileFragment
+                R.id.homeFragment,
+                R.id.nav_friends,
+                R.id.friendRequestsFragment,
+                R.id.nav_profile,
+                R.id.editProfileFragment
         ).setOpenableLayout(drawerLayout).build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -335,7 +341,20 @@ public class MainActivity extends AppCompatActivity {
     // Kullanıcı bilgileriyle navigation drawer başlığını güncelle
     private void updateNavigationHeader() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) return;
+        if (user == null) {
+            // Kullanıcı oturumu açık değilse varsayılan resmi göster ve çık
+            View headerView = navigationView.getHeaderView(0);
+            ShapeableImageView imageViewProfile = headerView.findViewById(R.id.imageViewProfile);
+            TextView textViewUsername = headerView.findViewById(R.id.textViewUsername);
+            textViewUsername.setText("Misafir"); // Veya uygun bir metin
+             Glide.with(MainActivity.this)
+                    .load(R.drawable.ic_defaultprofile)
+                    .circleCrop()
+                    .into(imageViewProfile);
+            lastProfileImageBase64 = null;
+            lastUsername = null; // Kullanıcı adı da sıfırlanmalı
+            return;
+        }
 
         View headerView = navigationView.getHeaderView(0);
         ShapeableImageView imageViewProfile = headerView.findViewById(R.id.imageViewProfile);
@@ -353,49 +372,84 @@ public class MainActivity extends AppCompatActivity {
                     String username = myUser.getUsername();
                     String base64 = myUser.getProfileImageUrl();
 
-                    // Only update username if changed
+                    // Kullanıcı adını güncelle (sadece değiştiyse)
                     if (lastUsername == null || !lastUsername.equals(username)) {
                         textViewUsername.setText("Hoş geldin, " + username);
                         lastUsername = username;
                     }
 
-                    // Only update image if changed
-                    if (base64 != null && !base64.trim().isEmpty() && (lastProfileImageBase64 == null || !lastProfileImageBase64.equals(base64))) {
-                        try {
-                            byte[] decodedBytes = Base64.decode(base64, Base64.DEFAULT);
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-                            Glide.with(MainActivity.this)
-                                    .load(bitmap)
-                                    .placeholder(R.drawable.ic_defaultprofile)
-                                    .error(R.drawable.ic_defaultprofile)
-                                    .circleCrop()
-                                    .into(imageViewProfile);
-                            lastProfileImageBase64 = base64;
-                        } catch (Exception e) {
-                            Glide.with(MainActivity.this)
+                    // Profil resmini yükle
+                    if (base64 != null && !base64.trim().isEmpty()) {
+                        // Base64 verisi varsa ve değişmişse yükle
+                        if (lastProfileImageBase64 == null || !lastProfileImageBase64.equals(base64)) {
+                            try {
+                                byte[] decodedBytes = Base64.decode(base64, Base64.DEFAULT);
+                                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                                if (bitmap != null) {
+                                    Glide.with(MainActivity.this)
+                                            .load(bitmap)
+                                            .placeholder(R.drawable.ic_defaultprofile)
+                                            .error(R.drawable.ic_defaultprofile)
+                                            .circleCrop()
+                                            .into(imageViewProfile);
+                                    lastProfileImageBase64 = base64; // Başarılı yüklemede cache'i güncelle
+                                } else {
+                                     // Bitmap dönüşümü başarısız olursa varsayılanı göster
+                                    Glide.with(MainActivity.this)
+                                            .load(R.drawable.ic_defaultprofile)
+                                            .circleCrop()
+                                            .into(imageViewProfile);
+                                    lastProfileImageBase64 = null; // Cache'i temizle
+                                }
+                            } catch (IllegalArgumentException e) {
+                                // Geçersiz Base64 formatı hatası durumunda varsayılanı göster
+                                Glide.with(MainActivity.this)
+                                        .load(R.drawable.ic_defaultprofile)
+                                        .circleCrop()
+                                        .into(imageViewProfile);
+                                lastProfileImageBase64 = null; // Cache'i temizle
+                            } catch (Exception e) {
+                                // Diğer beklenmeyen hatalarda varsayılanı göster
+                                Glide.with(MainActivity.this)
+                                        .load(R.drawable.ic_defaultprofile)
+                                        .circleCrop()
+                                        .into(imageViewProfile);
+                                lastProfileImageBase64 = null; // Cache'i temizle
+                            }
+                        }
+                         // Base64 değişmediyse bir şey yapma, mevcut resim kalır
+                    } else {
+                        // Base64 boş veya null ise varsayılan resmi göster
+                        // Sadece mevcut resim varsayılan değilse veya hiç resim yoksa yükle
+                        if (lastProfileImageBase64 != null) { // Eğer daha önce yüklü bir resim varsa temizle
+                             Glide.with(MainActivity.this)
                                     .load(R.drawable.ic_defaultprofile)
                                     .circleCrop()
                                     .into(imageViewProfile);
-                            lastProfileImageBase64 = null;
+                            lastProfileImageBase64 = null; // Cache'i temizle
                         }
-                    } else if (base64 == null || base64.trim().isEmpty()) {
-                        if (lastProfileImageBase64 != null) {
-                            Glide.with(MainActivity.this)
-                                    .load(R.drawable.ic_defaultprofile)
-                                    .circleCrop()
-                                    .into(imageViewProfile);
-                            lastProfileImageBase64 = null;
-                        }
+                        // Eğer zaten varsayılan resim yüklüyse tekrar yüklemeye gerek yok
                     }
+                } else {
+                    // Kullanıcı verisi null ise varsayılan resmi göster
+                    Glide.with(MainActivity.this)
+                            .load(R.drawable.ic_defaultprofile)
+                            .circleCrop()
+                            .into(imageViewProfile);
+                    lastProfileImageBase64 = null;
+                    lastUsername = null;
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                // Firebase hatası durumunda varsayılan resmi göster
                 Glide.with(MainActivity.this)
                         .load(R.drawable.ic_defaultprofile)
                         .circleCrop()
                         .into(imageViewProfile);
+                lastProfileImageBase64 = null;
+                lastUsername = null;
             }
         });
     }
