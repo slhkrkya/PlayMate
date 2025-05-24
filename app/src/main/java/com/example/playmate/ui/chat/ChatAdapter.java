@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -72,14 +73,25 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     // Gönderilen mesaj görünümü
     class SentMessageViewHolder extends RecyclerView.ViewHolder {
         TextView textMessage;
+        ImageView imageViewReadStatus;
 
         public SentMessageViewHolder(@NonNull View itemView) {
             super(itemView);
             textMessage = itemView.findViewById(R.id.textMessageSent);
+            imageViewReadStatus = itemView.findViewById(R.id.imageViewReadStatus);
         }
 
         void bind(ChatMessage message) {
             textMessage.setText(message.getMessage());
+
+            // Okundu durumunu göster
+            if (message.isRead()) {
+                imageViewReadStatus.setVisibility(View.VISIBLE);
+                imageViewReadStatus.setImageResource(R.drawable.ic_check_double);
+            } else {
+                imageViewReadStatus.setVisibility(View.VISIBLE);
+                imageViewReadStatus.setImageResource(R.drawable.ic_check_single);
+            }
 
             itemView.setOnLongClickListener(v -> {
                 showDeleteDialog(v, message);

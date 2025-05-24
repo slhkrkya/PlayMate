@@ -4,13 +4,32 @@
     android:layout_height="wrap_content"
     android:padding="8dp"
     android:gravity="end"
-    android:orientation="horizontal">
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textMessageSent"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/gradient_background"
-        android:textColor="#FFF"
-        android:padding="10dp"/>
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/textMessageSent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/gradient_background"
+            android:textColor="#FFF"
+            android:padding="10dp"/>
+
+        <ImageView
+            android:id="@+id/imageViewReadStatus"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="4dp"
+            android:src="@drawable/ic_check_single"
+            android:visibility="gone"
+            android:contentDescription="Mesaj durumu"/>
+
+    </LinearLayout>
 </LinearLayout>
